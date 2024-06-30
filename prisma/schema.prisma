@@ -9,6 +9,119 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+
+//  █    ██   ██████ ▓█████  ██▀███      ▄▄▄       ▄████▄   ▄████▄   ▒█████   █    ██  ███▄    █ ▄▄▄█████▓
+//  ██  ▓██▒▒██    ▒ ▓█   ▀ ▓██ ▒ ██▒   ▒████▄    ▒██▀ ▀█  ▒██▀ ▀█  ▒██▒  ██▒ ██  ▓██▒ ██ ▀█   █ ▓  ██▒ ▓▒
+// ▓██  ▒██░░ ▓██▄   ▒███   ▓██ ░▄█ ▒   ▒██  ▀█▄  ▒▓█    ▄ ▒▓█    ▄ ▒██░  ██▒▓██  ▒██░▓██  ▀█ ██▒▒ ▓██░ ▒░
+// ▓▓█  ░██░  ▒   ██▒▒▓█  ▄ ▒██▀▀█▄     ░██▄▄▄▄██ ▒▓▓▄ ▄██▒▒▓▓▄ ▄██▒▒██   ██░▓▓█  ░██░▓██▒  ▐▌██▒░ ▓██▓ ░ 
+// ▒▒█████▓ ▒██████▒▒░▒████▒░██▓ ▒██▒    ▓█   ▓██▒▒ ▓███▀ ░▒ ▓███▀ ░░ ████▓▒░▒▒█████▓ ▒██░   ▓██░  ▒██▒ ░ 
+// ░▒▓▒ ▒ ▒ ▒ ▒▓▒ ▒ ░░░ ▒░ ░░ ▒▓ ░▒▓░    ▒▒   ▓▒█░░ ░▒ ▒  ░░ ░▒ ▒  ░░ ▒░▒░▒░ ░▒▓▒ ▒ ▒ ░ ▒░   ▒ ▒   ▒ ░░   
+// ░░▒░ ░ ░ ░ ░▒  ░ ░ ░ ░  ░  ░▒ ░ ▒░     ▒   ▒▒ ░  ░  ▒     ░  ▒     ░ ▒ ▒░ ░░▒░ ░ ░ ░ ░░   ░ ▒░    ░    
+//  ░░░ ░ ░ ░  ░  ░     ░     ░░   ░      ░   ▒   ░        ░        ░ ░ ░ ▒   ░░░ ░ ░    ░   ░ ░   ░      
+//    ░           ░     ░  ░   ░              ░  ░░ ░      ░ ░          ░ ░     ░              ░          
+//                                                ░        ░                                              
+
+model Usuario {
+  id        Int         @id @default(autoincrement())
+  nome      String
+  email     String 
+  telefone  String      @unique
+  senha     String
+  tipo      UsuarioTipo
+  created   DateTime    @default(now())
+  updated   DateTime    @updatedAt
+  Motorista Motorista?
+  Cliente   Cliente?
+}
+
+model Motorista {
+  id                  Int                 @id @default(autoincrement())
+  usuarioId           Int                 @unique
+  fotoPerfil          String
+  localizacao         String
+  avaliacaoMedia      Float
+  created             DateTime            @default(now())
+  updated             DateTime            @updatedAt
+  Usuario             Usuario             @relation(fields: [usuarioId], references: [id])
+  ServicosSolicitados ServicoSolicitado[]
+  Avaliacao           Avaliacao[]
+}
+
+model Cliente {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @unique
+  created   DateTime @default(now())
+  updated   DateTime @updatedAt
+
+  Usuario             Usuario             @relation(fields: [usuarioId], references: [id])
+  ServicosSolicitados ServicoSolicitado[]
+  Avaliacoes          Avaliacao[]
+}
+
+
+//   ██████ ▓█████  ██▀███   ██▒   █▓ ██▓ ▄████▄  ▓█████ 
+// ▒██    ▒ ▓█   ▀ ▓██ ▒ ██▒▓██░   █▒▓██▒▒██▀ ▀█  ▓█   ▀ 
+// ░ ▓██▄   ▒███   ▓██ ░▄█ ▒ ▓██  █▒░▒██▒▒▓█    ▄ ▒███   
+//   ▒   ██▒▒▓█  ▄ ▒██▀▀█▄    ▒██ █░░░██░▒▓▓▄ ▄██▒▒▓█  ▄ 
+// ▒██████▒▒░▒████▒░██▓ ▒██▒   ▒▀█░  ░██░▒ ▓███▀ ░░▒████▒
+// ▒ ▒▓▒ ▒ ░░░ ▒░ ░░ ▒▓ ░▒▓░   ░ ▐░  ░▓  ░ ░▒ ▒  ░░░ ▒░ ░
+// ░ ░▒  ░ ░ ░ ░  ░  ░▒ ░ ▒░   ░ ░░   ▒ ░  ░  ▒    ░ ░  ░
+// ░  ░  ░     ░     ░░   ░      ░░   ▒ ░░           ░   
+//       ░     ░  ░   ░           ░   ░  ░ ░         ░  ░
+//                               ░       ░               
+
+
+model ServicoSolicitado {
+  id              Int           @id @default(autoincrement())
+  clienteId       Int
+  motoristaId     Int
+  status          ServicoStatus
+  preco           Float
+  dataSolicitacao DateTime      @default(now())
+  dataConclusao   DateTime?
+  dataAtualizacao DateTime      @updatedAt
+  Cliente         Cliente       @relation(fields: [clienteId], references: [id])
+  Motorista       Motorista     @relation(fields: [motoristaId], references: [id])
+}
+
+model Avaliacao {
+  id          Int       @id @default(autoincrement())
+  clienteId   Int
+  motoristaId Int
+  nota        Int
+  comentario  String?
+  created     DateTime  @default(now())
+  updated     DateTime  @updatedAt
+  Cliente     Cliente   @relation(fields: [clienteId], references: [id])
+  Motorista   Motorista @relation(fields: [motoristaId], references: [id])
+}
+
+
+// ▓█████  ███▄    █  █    ██  ███▄ ▄███▓
+// ▓█   ▀  ██ ▀█   █  ██  ▓██▒▓██▒▀█▀ ██▒
+// ▒███   ▓██  ▀█ ██▒▓██  ▒██░▓██    ▓██░
+// ▒▓█  ▄ ▓██▒  ▐▌██▒▓▓█  ░██░▒██    ▒██ 
+// ░▒████▒▒██░   ▓██░▒▒█████▓ ▒██▒   ░██▒
+// ░░ ▒░ ░░ ▒░   ▒ ▒ ░▒▓▒ ▒ ▒ ░ ▒░   ░  ░
+//  ░ ░  ░░ ░░   ░ ▒░░░▒░ ░ ░ ░  ░      ░
+//    ░      ░   ░ ░  ░░░ ░ ░ ░      ░   
+//    ░  ░         ░    ░            ░   
+                                      
+
+
+
+enum UsuarioTipo {
+  CLIENTE
+  MOTORISTA
+}
+
+enum ServicoStatus {
+  PENDENTE
+  ACEITO
+  CONCLUIDO
+  RECUSADO
 }
