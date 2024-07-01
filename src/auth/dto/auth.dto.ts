@@ -1,9 +1,10 @@
-import { $Enums, Motorista, Usuario } from '@prisma/client';
+import { $Enums, Cliente, Motorista, Usuario } from '@prisma/client';
 import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   IsUrl,
@@ -48,6 +49,12 @@ export class CreateUsuarioDto
   telefone: string;
 }
 
+export class CreateclienteDto
+  implements Omit<Cliente, 'created' | 'updated' | 'id'>
+{
+  fotoPerfil: string;
+  usuarioId: number;
+}
 export class CreateMotoristaDto
   implements Omit<Motorista, 'created' | 'updated' | 'id'>
 {
@@ -76,3 +83,4 @@ export class CreateUserDriverDto {
   @IsNotEmpty()
   motorista: CreateMotoristaDto;
 }
+

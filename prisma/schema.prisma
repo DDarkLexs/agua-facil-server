@@ -54,9 +54,9 @@ model Motorista {
 model Cliente {
   id        Int      @id @default(autoincrement())
   usuarioId Int      @unique
+  fotoPerfil          String
   created   DateTime @default(now())
   updated   DateTime @updatedAt
-
   Usuario             Usuario             @relation(fields: [usuarioId], references: [id])
   ServicosSolicitados ServicoSolicitado[]
   Avaliacoes          Avaliacao[]

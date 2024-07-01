@@ -6,7 +6,6 @@ import { AuthService } from './auth/auth.service';
 import { PrismaService } from './prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';
 import { HashService } from './hash/hash.service';
-
 @Module({
   imports: [AuthModule],
   controllers: [AppController, AuthController],

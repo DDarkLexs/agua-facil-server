@@ -5,18 +5,17 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Public } from 'src/jwt/jwt.constant';
+import { Public } from '../jwt/jwt.constant';
 import { AuthService } from './auth.service';
 import { AuthUsuarioDto, CreateUserDriverDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
   @Public()
-  @Post('login')
+  @Post('driver/login')
   @UsePipes(ValidationPipe)
-  async authenticateDriver(@Body() authUsuarioDto: AuthUsuarioDto) {
-    
+  async authenticateDriver(@Body() authUsuarioDto: AuthUsuarioDto): Promise<IAuthUserDriver> {
     return await this.authService.authDriverUsuario(authUsuarioDto);
   }
   @Public()
