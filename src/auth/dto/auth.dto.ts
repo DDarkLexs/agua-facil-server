@@ -35,7 +35,7 @@ export class CreateUsuarioDto
 
   @IsEnum($Enums.UsuarioTipo, {
     message:
-      'Por favor, selecione um tipo de usuário válido (CLIENTE ou MOTORISTA).',
+      'Por favor, selecione um tipo de usuário válido (CLIENTE).',
   })
   tipo: $Enums.UsuarioTipo;
 
@@ -55,6 +55,8 @@ export class CreateclienteDto
   fotoPerfil: string;
   usuarioId: number;
 }
+
+
 export class CreateMotoristaDto
   implements Omit<Motorista, 'created' | 'updated' | 'id'>
 {
