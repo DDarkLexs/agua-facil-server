@@ -6,8 +6,10 @@ import { AuthService } from './auth/auth.service';
 import { PrismaService } from './prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';
 import { HashService } from './hash/hash.service';
+import { ServiceModule } from './service/service.module';
+import { PedidoModule } from './pedido/pedido.module';
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, ServiceModule, PedidoModule],
   controllers: [AppController, AuthController],
   providers: [AppService, AuthService, PrismaService, HashService],
 })
