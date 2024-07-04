@@ -13,7 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 //  █    ██   ██████ ▓█████  ██▀███      ▄▄▄       ▄████▄   ▄████▄   ▒█████   █    ██  ███▄    █ ▄▄▄█████▓
 //  ██  ▓██▒▒██    ▒ ▓█   ▀ ▓██ ▒ ██▒   ▒████▄    ▒██▀ ▀█  ▒██▀ ▀█  ▒██▒  ██▒ ██  ▓██▒ ██ ▀█   █ ▓  ██▒ ▓▒
 // ▓██  ▒██░░ ▓██▄   ▒███   ▓██ ░▄█ ▒   ▒██  ▀█▄  ▒▓█    ▄ ▒▓█    ▄ ▒██░  ██▒▓██  ▒██░▓██  ▀█ ██▒▒ ▓██░ ▒░
@@ -28,7 +27,7 @@ datasource db {
 model Usuario {
   id        Int         @id @default(autoincrement())
   nome      String
-  email     String 
+  email     String
   telefone  String      @unique
   senha     String
   tipo      UsuarioTipo
@@ -49,19 +48,20 @@ model Motorista {
   Usuario             Usuario             @relation(fields: [usuarioId], references: [id])
   ServicosSolicitados ServicoSolicitado[]
   Avaliacao           Avaliacao[]
+  ServicoMotorista    ServicoMotorista[]
 }
 
 model Cliente {
-  id        Int      @id @default(autoincrement())
-  usuarioId Int      @unique
+  id                  Int                 @id @default(autoincrement())
+  usuarioId           Int                 @unique
   fotoPerfil          String
-  created   DateTime @default(now())
-  updated   DateTime @updatedAt
+  created             DateTime            @default(now())
+  updated             DateTime            @updatedAt
   Usuario             Usuario             @relation(fields: [usuarioId], references: [id])
+  Servicos            ServicoMotorista[]
   ServicosSolicitados ServicoSolicitado[]
   Avaliacoes          Avaliacao[]
 }
-
 
 //   ██████ ▓█████  ██▀███   ██▒   █▓ ██▓ ▄████▄  ▓█████ 
 // ▒██    ▒ ▓█   ▀ ▓██ ▒ ██▒▓██░   █▒▓██▒▒██▀ ▀█  ▓█   ▀ 
@@ -73,19 +73,32 @@ model Cliente {
 // ░  ░  ░     ░     ░░   ░      ░░   ▒ ░░           ░   
 //       ░     ░  ░   ░           ░   ░  ░ ░         ░  ░
 //                               ░       ░               
+model ServicoMotorista {
+  id          Int       @id @default(autoincrement())
+  titulo      String
+  descricao   String?
+  preco       Float     @default(0)
+  ocupado     Boolean   @default(false)
+  motoristaId Int
+  clienteId   Int?
+  motorista   Motorista @relation(fields: [motoristaId], references: [id])
+  Cliente     Cliente?  @relation(fields: [clienteId], references: [id])
+}
 
+// novo
 
 model ServicoSolicitado {
-  id              Int           @id @default(autoincrement())
-  clienteId       Int
-  motoristaId     Int
-  status          ServicoStatus
-  preco           Float
-  dataSolicitacao DateTime      @default(now())
-  dataConclusao   DateTime?
-  dataAtualizacao DateTime      @updatedAt
-  Cliente         Cliente       @relation(fields: [clienteId], references: [id])
-  Motorista       Motorista     @relation(fields: [motoristaId], references: [id])
+  id            Int           @id @default(autoincrement())
+  preco         Float
+  status        ServicoStatus @default(ACEITO)
+  coordenada    String
+  dataConclusao DateTime?
+  clienteId     Int
+  motoristaId   Int
+  created       DateTime      @default(now())
+  updated       DateTime      @updatedAt
+  Cliente       Cliente       @relation(fields: [clienteId], references: [id])
+  Motorista     Motorista     @relation(fields: [motoristaId], references: [id])
 }
 
 model Avaliacao {
@@ -100,7 +113,6 @@ model Avaliacao {
   Motorista   Motorista @relation(fields: [motoristaId], references: [id])
 }
 
-
 // ▓█████  ███▄    █  █    ██  ███▄ ▄███▓
 // ▓█   ▀  ██ ▀█   █  ██  ▓██▒▓██▒▀█▀ ██▒
 // ▒███   ▓██  ▀█ ██▒▓██  ▒██░▓██    ▓██░
@@ -110,9 +122,6 @@ model Avaliacao {
 //  ░ ░  ░░ ░░   ░ ▒░░░▒░ ░ ░ ░  ░      ░
 //    ░      ░   ░ ░  ░░░ ░ ░ ░      ░   
 //    ░  ░         ░    ░            ░   
-                                      
-
-
 
 enum UsuarioTipo {
   CLIENTE
