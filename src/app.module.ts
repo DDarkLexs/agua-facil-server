@@ -10,8 +10,9 @@ import { MotoristaModule } from './motorista/motorista.module';
 import { PedidoModule } from './pedido/pedido.module';
 import { PrismaService } from './prisma/prisma.service';
 import { ServicoModule } from './servico/servico.module';
+import { AuthorizationModule } from './authorization/authorization.module';
 @Module({
-  imports: [AuthModule, ClienteModule, MotoristaModule, PedidoModule, ServicoModule],
+  imports: [AuthModule, ClienteModule, MotoristaModule, PedidoModule, ServicoModule, AuthorizationModule],
   controllers: [AppController, AuthController],
   providers: [AppService, AuthService, PrismaService, HashService],
 })

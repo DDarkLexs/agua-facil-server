@@ -58,7 +58,6 @@ model Cliente {
   created             DateTime            @default(now())
   updated             DateTime            @updatedAt
   Usuario             Usuario             @relation(fields: [usuarioId], references: [id])
-  Servicos            ServicoMotorista[]
   ServicosSolicitados ServicoSolicitado[]
   Avaliacoes          Avaliacao[]
 }
@@ -80,9 +79,7 @@ model ServicoMotorista {
   preco       Float     @default(0)
   ocupado     Boolean   @default(false)
   motoristaId Int
-  clienteId   Int?
   motorista   Motorista @relation(fields: [motoristaId], references: [id])
-  Cliente     Cliente?  @relation(fields: [clienteId], references: [id])
 }
 
 // novo

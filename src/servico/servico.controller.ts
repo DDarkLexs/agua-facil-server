@@ -1,17 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ServicoService } from './servico.service';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UsePipes, ValidationPipe } from '@nestjs/common';
+import { $Enums, ServicoMotorista } from '@prisma/client';
+import { Autorizacao } from 'src/authorization/authorization.decorator';
 import { CreateServicoDto } from './dto/create-servico.dto';
 import { UpdateServicoDto } from './dto/update-servico.dto';
+import { ServicoService } from './servico.service';
 
 @Controller('servico')
 export class ServicoController {
-  constructor(private readonly servicoService: ServicoService) {}
+  constructor(private readonly servicoService: ServicoService) { }
 
   @Post()
-  create(@Body() createServicoDto: CreateServicoDto) {
-    return this.servicoService.create(createServicoDto);
+  @UsePipes(ValidationPipe)
+  @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
+  create(@Body() createServicoDto: CreateServicoDto, @Req() req: any): Promise<ServicoMotorista> {
+    return this.servicoService.create(createServicoDto, req.usuario.Motorista.id);
   }
-
   @Get()
   findAll() {
     return this.servicoService.findAll();
