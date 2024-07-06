@@ -7,13 +7,19 @@ import { ServicoService } from './servico.service';
 
 @Controller('servico')
 export class ServicoController {
-  constructor(private readonly servicoService: ServicoService) { }
+  constructor(private readonly servicoService: ServicoService) {}
 
   @Post()
   @UsePipes(ValidationPipe)
   @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
-  create(@Body() createServicoDto: CreateServicoDto, @Req() req: any): Promise<ServicoMotorista> {
-    return this.servicoService.create(createServicoDto, req.usuario.Motorista.id);
+  create(
+    @Body() createServicoDto: CreateServicoDto,
+    @Req() req: any,
+  ): Promise<ServicoMotorista> {
+    return this.servicoService.create(
+      createServicoDto,
+      req.usuario.Motorista.id,
+    );
   }
   @Get("motorista")
   @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
