@@ -15,6 +15,12 @@ export class ServicoController {
   create(@Body() createServicoDto: CreateServicoDto, @Req() req: any): Promise<ServicoMotorista> {
     return this.servicoService.create(createServicoDto, req.usuario.Motorista.id);
   }
+  @Get("motorista")
+  @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
+  findAllByMotorista(@Req() req: any) {
+    const user: IUsuarioReq = req.usuario;
+    return this.servicoService.findAllByMotorista(user.Motorista.id);
+  }
   @Get()
   findAll() {
     return this.servicoService.findAll();

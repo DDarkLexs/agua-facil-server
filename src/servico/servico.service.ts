@@ -1,15 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
+import { ServicoMotorista } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateServicoDto } from './dto/create-servico.dto';
 import { UpdateServicoDto } from './dto/update-servico.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { ServicoMotorista } from '@prisma/client';
 
 @Injectable()
 export class ServicoService {
 
-  constructor(private readonly prisma: PrismaService) {}
-  create(createServicoDto: CreateServicoDto, motoristaId: number): Promise<ServicoMotorista> {
-    const newService = this.prisma.servicoMotorista.create({
+  constructor(private readonly prisma: PrismaService) { }
+  async create(createServicoDto: CreateServicoDto, motoristaId: number): Promise<ServicoMotorista> {
+    const newService = await this.prisma.servicoMotorista.create({
       data: {
         ...createServicoDto,
         motoristaId,
@@ -22,15 +22,66 @@ export class ServicoService {
     return `This action returns all servico`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} servico`;
+  async findAllByMotorista(id: number) {
+    if (!id) {
+      throw new NotAcceptableException('Id não informado!');
+    }
+    const response = await this.prisma.servicoMotorista.findMany({
+      where: {
+        motoristaId: id
+      }
+    })
+    return response;
   }
 
-  update(id: number, updateServicoDto: UpdateServicoDto) {
-    return `This action updates a #${id} servico`;
+  async findOne(id: number) {
+    if (!id) {
+      throw new NotAcceptableException('Id não informado!');
+    }
+    const response = await this.prisma.servicoMotorista.findFirst({
+      where: {
+        id,
+      }
+    })
+    return response;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} servico`;
+  async update(id: number, updateServicoDto: UpdateServicoDto) {
+    if (!id) {
+      throw new ForbiddenException('Id não informado!');
+
+    }
+    const query = await this.findOne(id);
+    if (!query) {
+      throw new NotFoundException('Serviço não encontrado!');
+
+    }
+    const response = this.prisma.servicoMotorista.update({
+      where: {
+        id,
+      },
+      data: {
+        ...updateServicoDto
+      }
+    })
+    return response;
+  }
+
+  async remove(id: number) {
+    if (!id) {
+      throw new ForbiddenException('Id não informado!');
+
+    }
+    const query = await this.findOne(id);
+    if (!query) {
+      throw new NotFoundException('Serviço não encontrado!');
+
+    }
+    const response = this.prisma.servicoMotorista.delete({
+      where: {
+        id,
+      }
+    })
+    return `Serviço removido com sucesso!`;
   }
 }

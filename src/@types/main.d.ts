@@ -10,4 +10,11 @@ declare global {
         cliente: Cliente;
         token: string;
     }
+
+    interface IUsuarioReq extends Usuario {
+        Motorista: Motorista;
+    }
+    iat: number;
+    exp: number;
 }
+
