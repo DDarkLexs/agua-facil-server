@@ -20,7 +20,7 @@ export class AuthService {
 
 
   async insertMotoristaUsuario(userData: CreateUsuarioDto, data: CreateMotoristaDto): Promise<any> {
-    userData.tipo = $Enums.UsuarioTipo.CLIENTE
+    userData.tipo = $Enums.UsuarioTipo.MOTORISTA
     // Verifica se o usuário já existe no banco de dados
     const existingUser = await this.prisma.usuario.findUnique({
       where: {
@@ -70,11 +70,11 @@ export class AuthService {
       },
 
     });
+    if (!usuarioNoBanco) {
+      throw new NotFoundException('Usuário não encontrado ou senha incorreta!'); // Trate como preferir (ex.: retornando um erro)
+    }
     if (usuarioNoBanco.tipo !== $Enums.UsuarioTipo.MOTORISTA) {
       throw new UnauthorizedException('Usuário não autorizado para autenticar como motorista!'); // Trate como preferir (ex.: retornando um erro)
-    }
-    if (!usuarioNoBanco) {
-      throw new NotFoundException('Usuário não encontrado!'); // Trate como preferir (ex.: retornando um erro)
     }
     // Exemplo de validação da senha (se estiver usando criptografia)
     const senhaValida = await this.hashService.comparePasswords(senha, usuarioNoBanco.senha);
@@ -119,8 +119,6 @@ export class AuthService {
     return newCliente;
   }
   async createCliente(data: CreateclienteDto): Promise<Cliente> {
-
-
     const result = await this.prisma.cliente.create({
       data,
       include: {

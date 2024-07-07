@@ -78,7 +78,7 @@ model ServicoMotorista {
   descricao   String?
   preco       Float     @default(0)
   ocupado     Boolean   @default(false)
-  motoristaId Int
+  motoristaId Int       @unique
   motorista   Motorista @relation(fields: [motoristaId], references: [id])
 }
 

@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { $Enums, ServicoMotorista } from '@prisma/client';
 import { Autorizacao } from 'src/authorization/authorization.decorator';
 import { CreateServicoDto } from './dto/create-servico.dto';
@@ -17,11 +28,11 @@ export class ServicoController {
     @Req() req: any,
   ): Promise<ServicoMotorista> {
     return this.servicoService.create(
-      createServicoDto,
       req.usuario.Motorista.id,
+      createServicoDto,
     );
   }
-  @Get("motorista")
+  @Get('motorista')
   @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
   findAllByMotorista(@Req() req: any) {
     const user: IUsuarioReq = req.usuario;
@@ -31,19 +42,30 @@ export class ServicoController {
   findAll() {
     return this.servicoService.findAll();
   }
-
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.servicoService.findOne(+id);
+  @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
+  findOne(@Param('id') id: string, @Req() req: any) {
+    const user: IUsuarioReq = req.usuario;
+    return this.servicoService.findOne(user.Motorista.id, Number(id));
   }
-
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateServicoDto: UpdateServicoDto) {
-    return this.servicoService.update(+id, updateServicoDto);
+  @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
+  update(
+    @Param('id') id: string,
+    @Body() updateServicoDto: UpdateServicoDto,
+    @Req() req: any,
+  ) {
+    const user: IUsuarioReq = req.usuario;
+    return this.servicoService.update(
+      user.Motorista.id,
+      Number(id),
+      updateServicoDto,
+    );
   }
-
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.servicoService.remove(+id);
+  @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
+  remove(@Param('id') id: string, @Req() req: any) {
+    const user: IUsuarioReq = req.usuario;
+    return this.servicoService.remove(user.Motorista.id, Number(id));
   }
 }
