@@ -65,6 +65,9 @@ export class CreateMotoristaDto
   @Max(5)
   avaliacaoMedia: number;
 
+  @IsNotEmpty({ message: 'Por favor, informe a disponibilidade do motorista.' })
+  disponivel: boolean;
+
   @IsUrl(
     {},
     { message: 'Por favor, informe uma URL válida para a foto de perfil.' },

@@ -12,6 +12,22 @@ import { UpdateServicoDto } from './dto/update-servico.dto';
 @Injectable()
 export class ServicoService {
   constructor(private readonly prisma: PrismaService) {}
+
+  /* 
+  
+ ███▄ ▄███▓ ▒█████  ▄▄▄█████▓ ▒█████   ██▀███   ██▓  ██████ ▄▄▄█████▓ ▄▄▄      
+▓██▒▀█▀ ██▒▒██▒  ██▒▓  ██▒ ▓▒▒██▒  ██▒▓██ ▒ ██▒▓██▒▒██    ▒ ▓  ██▒ ▓▒▒████▄    
+▓██    ▓██░▒██░  ██▒▒ ▓██░ ▒░▒██░  ██▒▓██ ░▄█ ▒▒██▒░ ▓██▄   ▒ ▓██░ ▒░▒██  ▀█▄  
+▒██    ▒██ ▒██   ██░░ ▓██▓ ░ ▒██   ██░▒██▀▀█▄  ░██░  ▒   ██▒░ ▓██▓ ░ ░██▄▄▄▄██ 
+▒██▒   ░██▒░ ████▓▒░  ▒██▒ ░ ░ ████▓▒░░██▓ ▒██▒░██░▒██████▒▒  ▒██▒ ░  ▓█   ▓██▒
+░ ▒░   ░  ░░ ▒░▒░▒░   ▒ ░░   ░ ▒░▒░▒░ ░ ▒▓ ░▒▓░░▓  ▒ ▒▓▒ ▒ ░  ▒ ░░    ▒▒   ▓▒█░
+░  ░      ░  ░ ▒ ▒░     ░      ░ ▒ ▒░   ░▒ ░ ▒░ ▒ ░░ ░▒  ░ ░    ░      ▒   ▒▒ ░
+░      ░   ░ ░ ░ ▒    ░      ░ ░ ░ ▒    ░░   ░  ▒ ░░  ░  ░    ░        ░   ▒   
+       ░       ░ ░               ░ ░     ░      ░        ░                 ░  ░
+                                                                               
+
+  
+  */
   async create(
     motoristaId: number,
     createServicoDto: CreateServicoDto,
@@ -32,11 +48,6 @@ export class ServicoService {
     });
     return newService;
   }
-
-  findAll() {
-    return `This action returns all servico`;
-  }
-
   async findAllByMotorista(id: number) {
     if (!id) {
       throw new NotAcceptableException('Id não informado!');
@@ -103,5 +114,29 @@ export class ServicoService {
       ...response,
       msg: `Serviço removido com sucesso!`,
     };
+  }
+  /* 
+        
+      ▄████▄   ██▓     ██▓▓█████  ███▄    █ ▄▄▄█████▓▓█████ 
+      ▒██▀ ▀█  ▓██▒    ▓██▒▓█   ▀  ██ ▀█   █ ▓  ██▒ ▓▒▓█   ▀ 
+      ▒▓█    ▄ ▒██░    ▒██▒▒███   ▓██  ▀█ ██▒▒ ▓██░ ▒░▒███   
+      ▒▓▓▄ ▄██▒▒██░    ░██░▒▓█  ▄ ▓██▒  ▐▌██▒░ ▓██▓ ░ ▒▓█  ▄ 
+      ▒ ▓███▀ ░░██████▒░██░░▒████▒▒██░   ▓██░  ▒██▒ ░ ░▒████▒
+      ░ ░▒ ▒  ░░ ▒░▓  ░░▓  ░░ ▒░ ░░ ▒░   ▒ ▒   ▒ ░░   ░░ ▒░ ░
+        ░  ▒   ░ ░ ▒  ░ ▒ ░ ░ ░  ░░ ░░   ░ ▒░    ░     ░ ░  ░
+      ░          ░ ░    ▒ ░   ░      ░   ░ ░   ░         ░   
+      ░ ░          ░  ░ ░     ░  ░         ░             ░  ░
+      ░                                                        
+  */
+  findAllForClienteDisponiveis() {
+    const query = this.prisma.servicoMotorista.findMany({
+      where: {
+        ocupado: false,
+      },
+      include: {
+        motorista: true,
+      }
+    })
+    return query;
   }
 }

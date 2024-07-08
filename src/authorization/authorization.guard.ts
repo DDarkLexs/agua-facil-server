@@ -5,7 +5,7 @@ import {
   Injectable
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { $Enums, Usuario } from '@prisma/client';
+import { $Enums } from '@prisma/client';
 import { Observable } from 'rxjs';
 import { ROLES_KEY } from './authorization.decorator';
 
@@ -24,14 +24,14 @@ export class AutorizacaoGuard implements CanActivate {
     if (!required) {
       return true;
     }
-    
+
     const req = context.switchToHttp().getRequest();
     const usuario: any = req['usuario'];
 
     if (usuario.tipo === required[0]) {
       return true;
     } else {
-      throw new ForbiddenException('Sem permissão de um motorista!');
+      throw new ForbiddenException(`Sem permissão para acessar este recurso!`);
     }
   }
 }

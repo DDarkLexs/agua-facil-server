@@ -11,4 +11,7 @@ export class CreateServicoDto implements Omit<ServicoMotorista, 'id' | 'createdA
     @IsNotEmpty({ message: 'O preco não pode estar vazio' })
     @IsNumber({}, { message: 'O preço deve ser um número' })
     preco: number;
+    @IsNotEmpty({ message: 'O litro não pode estar vazio' })
+    @IsNumber({}, { message: 'O litro deve ser um número' })
+    litro: number;
 }

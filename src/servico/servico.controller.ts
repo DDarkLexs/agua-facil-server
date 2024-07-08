@@ -19,7 +19,18 @@ import { ServicoService } from './servico.service';
 @Controller('servico')
 export class ServicoController {
   constructor(private readonly servicoService: ServicoService) {}
-
+  /* 
+        
+      ███▄ ▄███▓ ▒█████  ▄▄▄█████▓ ▒█████   ██▀███   ██▓  ██████ ▄▄▄█████▓ ▄▄▄      
+      ▓██▒▀█▀ ██▒▒██▒  ██▒▓  ██▒ ▓▒▒██▒  ██▒▓██ ▒ ██▒▓██▒▒██    ▒ ▓  ██▒ ▓▒▒████▄    
+      ▓██    ▓██░▒██░  ██▒▒ ▓██░ ▒░▒██░  ██▒▓██ ░▄█ ▒▒██▒░ ▓██▄   ▒ ▓██░ ▒░▒██  ▀█▄  
+      ▒██    ▒██ ▒██   ██░░ ▓██▓ ░ ▒██   ██░▒██▀▀█▄  ░██░  ▒   ██▒░ ▓██▓ ░ ░██▄▄▄▄██ 
+      ▒██▒   ░██▒░ ████▓▒░  ▒██▒ ░ ░ ████▓▒░░██▓ ▒██▒░██░▒██████▒▒  ▒██▒ ░  ▓█   ▓██▒
+      ░ ▒░   ░  ░░ ▒░▒░▒░   ▒ ░░   ░ ▒░▒░▒░ ░ ▒▓ ░▒▓░░▓  ▒ ▒▓▒ ▒ ░  ▒ ░░    ▒▒   ▓▒█░
+      ░  ░      ░  ░ ▒ ▒░     ░      ░ ▒ ▒░   ░▒ ░ ▒░ ▒ ░░ ░▒  ░ ░    ░      ▒   ▒▒ ░
+      ░      ░   ░ ░ ░ ▒    ░      ░ ░ ░ ▒    ░░   ░  ▒ ░░  ░  ░    ░        ░   ▒   
+            ░       ░ ░               ░ ░     ░      ░        ░                 ░  ░  
+  */
   @Post()
   @UsePipes(ValidationPipe)
   @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
@@ -40,9 +51,9 @@ export class ServicoController {
   }
   @Get()
   findAll() {
-    return this.servicoService.findAll();
+    return null;
   }
-  @Get(':id')
+  @Get('motorista/:id')
   @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
   findOne(@Param('id') id: string, @Req() req: any) {
     const user: IUsuarioReq = req.usuario;
@@ -67,5 +78,26 @@ export class ServicoController {
   remove(@Param('id') id: string, @Req() req: any) {
     const user: IUsuarioReq = req.usuario;
     return this.servicoService.remove(user.Motorista.id, Number(id));
+  }
+
+  /* 
+        
+      ▄████▄   ██▓     ██▓▓█████  ███▄    █ ▄▄▄█████▓▓█████ 
+      ▒██▀ ▀█  ▓██▒    ▓██▒▓█   ▀  ██ ▀█   █ ▓  ██▒ ▓▒▓█   ▀ 
+      ▒▓█    ▄ ▒██░    ▒██▒▒███   ▓██  ▀█ ██▒▒ ▓██░ ▒░▒███   
+      ▒▓▓▄ ▄██▒▒██░    ░██░▒▓█  ▄ ▓██▒  ▐▌██▒░ ▓██▓ ░ ▒▓█  ▄ 
+      ▒ ▓███▀ ░░██████▒░██░░▒████▒▒██░   ▓██░  ▒██▒ ░ ░▒████▒
+      ░ ░▒ ▒  ░░ ▒░▓  ░░▓  ░░ ▒░ ░░ ▒░   ▒ ▒   ▒ ░░   ░░ ▒░ ░
+        ░  ▒   ░ ░ ▒  ░ ▒ ░ ░ ░  ░░ ░░   ░ ▒░    ░     ░ ░  ░
+      ░          ░ ░    ▒ ░   ░      ░   ░ ░   ░         ░   
+      ░ ░          ░  ░ ░     ░  ░         ░             ░  ░
+      ░                                                        
+  */
+
+  @Get("disponiveis")
+  @Autorizacao($Enums.UsuarioTipo.CLIENTE)
+  findAllForClienteDisponiveis(@Req() req: any) {
+    // const user: IUsuarioReq = req.usuario;
+    return this.servicoService.findAllForClienteDisponiveis();
   }
 }

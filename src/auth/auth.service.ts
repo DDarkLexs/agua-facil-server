@@ -16,7 +16,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly hashService: HashService,
-  ) {}
+  ) { }
 
 
   async insertMotoristaUsuario(userData: CreateUsuarioDto, data: CreateMotoristaDto): Promise<any> {

@@ -43,6 +43,7 @@ model Motorista {
   fotoPerfil          String
   localizacao         String
   avaliacaoMedia      Float
+  disponivel          Boolean             @default(true)
   created             DateTime            @default(now())
   updated             DateTime            @updatedAt
   Usuario             Usuario             @relation(fields: [usuarioId], references: [id])
@@ -73,15 +74,15 @@ model Cliente {
 //       ░     ░  ░   ░           ░   ░  ░ ░         ░  ░
 //                               ░       ░               
 model ServicoMotorista {
-  id          Int       @id @default(autoincrement())
-  titulo      String
-  descricao   String?
-  preco       Float     @default(0)
-  ocupado     Boolean   @default(false)
-  motoristaId Int       @unique
-  motorista   Motorista @relation(fields: [motoristaId], references: [id])
+  id           Int       @id @default(autoincrement())
+  titulo       String
+  descricao    String?
+  preco        Float     @default(0)
+  ocupado      Boolean   @default(false)
+  litro        Float     @default(0.0)   // Adicionando a nova coluna litro de água como um inteiro
+  motoristaId  Int       @unique
+  motorista    Motorista @relation(fields: [motoristaId], references: [id])
 }
-
 // novo
 
 model ServicoSolicitado {
