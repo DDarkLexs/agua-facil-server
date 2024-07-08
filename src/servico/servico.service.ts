@@ -60,7 +60,7 @@ export class ServicoService {
     return response;
   }
 
-  async findOne(motoristaId: number, id: number) {
+  async findOneWithMotorista(motoristaId: number, id: number) {
     if (!id) {
       throw new NotAcceptableException('Id não informado!');
     }
@@ -68,6 +68,17 @@ export class ServicoService {
       where: {
         id,
         motoristaId,
+      },
+    });
+    return response;
+  }
+  async findOne(id: number) {
+    if (!id) {
+      throw new NotAcceptableException('Id não informado!');
+    }
+    const response = await this.prisma.servicoMotorista.findFirst({
+      where: {
+        id,
       },
     });
     return response;
@@ -81,7 +92,7 @@ export class ServicoService {
     if (!id) {
       throw new ForbiddenException('Id não informado!');
     }
-    const query = await this.findOne(motoristaId, id);
+    const query = await this.findOneWithMotorista(motoristaId, id);
     if (!query) {
       throw new NotFoundException('Serviço não encontrado!');
     }
@@ -101,7 +112,7 @@ export class ServicoService {
     if (!id) {
       throw new ForbiddenException('Id não informado!');
     }
-    const query = await this.findOne(motoristaId, id);
+    const query = await this.findOneWithMotorista(motoristaId, id);
     if (!query) {
       throw new NotFoundException('Serviço não encontrado!');
     }

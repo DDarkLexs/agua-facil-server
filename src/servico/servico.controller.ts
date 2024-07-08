@@ -57,7 +57,7 @@ export class ServicoController {
   @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
   findOne(@Param('id') id: string, @Req() req: any) {
     const user: IUsuarioReq = req.usuario;
-    return this.servicoService.findOne(user.Motorista.id, Number(id));
+    return this.servicoService.findOneWithMotorista(user.Motorista.id, Number(id));
   }
   @Patch(':id')
   @Autorizacao($Enums.UsuarioTipo.MOTORISTA)

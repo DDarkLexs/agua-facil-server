@@ -79,7 +79,7 @@ model ServicoMotorista {
   descricao    String?
   preco        Float     @default(0)
   ocupado      Boolean   @default(false)
-  litro        Float     @default(0.0)   // Adicionando a nova coluna litro de água como um inteiro
+  litroAgua    Float @default(0.0)   // Adicionando a nova coluna litro de água como um inteiro
   motoristaId  Int       @unique
   motorista    Motorista @relation(fields: [motoristaId], references: [id])
 }
@@ -87,8 +87,11 @@ model ServicoMotorista {
 
 model ServicoSolicitado {
   id            Int           @id @default(autoincrement())
+  titulo        String
+  descricao     String?
+  litroAgua     Float
   preco         Float
-  status        ServicoStatus @default(ACEITO)
+  status        ServicoStatus @default(PENDENTE)
   coordenada    String
   dataConclusao DateTime?
   clienteId     Int
