@@ -22,15 +22,30 @@ export class SolicitacaoController {
   }
 
   @Get()
-  findAll() {
-    return this.solicitacaoService.findAll();
+  @UsePipes(ValidationPipe)
+  @Autorizacao($Enums.UsuarioTipo.CLIENTE)
+  findAll(@Req() req: any) {
+    const clienteid = req['usuario']["Cliente"].id;
+    return this.solicitacaoService.findAll(clienteid);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.solicitacaoService.findOne(+id);
+  @Get('cliente/:id')
+  @Autorizacao($Enums.UsuarioTipo.CLIENTE)
+  findOne(@Param('id', convertToNumberPipe) id: number, @Req() req: any) {
+    const clienteid = req['usuario']["Cliente"].id;
+    return this.solicitacaoService.findOne(id, clienteid);
   }
-
+  @Get('cliente/:id')
+  findOneByprops(@Param('id', convertToNumberPipe) id: number, @Req() req: any) {
+    const clienteid = req['usuario']["Cliente"].id;
+    return this.solicitacaoService.findOne(id, clienteid);
+  }
+  @Get('historico')
+  @Autorizacao($Enums.UsuarioTipo.CLIENTE)
+  findAllByhistorico(@Req() req: any) {
+    const clienteid = req['usuario']["Cliente"].id;
+    return this.solicitacaoService.findAllbyhistorico(clienteid);
+  }
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSolicitacaoDto: UpdateSolicitacaoDto) {
     return this.solicitacaoService.update(+id, updateSolicitacaoDto);

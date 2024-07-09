@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ServicoService } from 'src/servico/servico.service';
 import { UpdateSolicitacaoDto } from './dto/update-solicitacao.dto';
 import { CreateSolicitacaoByMotoristaIdDto } from './dto/create-solicitacao.dto';
+import { $Enums } from '@prisma/client';
 
 @Injectable()
 export class SolicitacaoService {
@@ -32,12 +33,47 @@ export class SolicitacaoService {
     return newSolicitacao;
   }
 
-  findAll() {
-    return `This action returns all solicitacao`;
+  /**
+   * A description of the entire function.
+   *
+   * @param {type} paramName - description of parameter
+   * @return {type} description of return value
+   */
+  async findAll(clienteId: number) {
+    const query = await this.prisma.servicoSolicitado.findMany({
+      where: {
+        clienteId
+      }
+    })
+    return query;
+  }
+  async findAllbyhistorico(clienteId: number) {
+    const query = await this.prisma.servicoSolicitado.findMany({
+      where: {
+        clienteId,
+        status: $Enums.ServicoStatus.CONCLUIDO,
+        OR: [
+          {
+            status: $Enums.ServicoStatus.ACEITO
+          },
+        ]
+      }
+    })
+    return query;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} solicitacao`;
+  async findOne(id: number, clienteId: number) {
+    const query = await this.prisma.servicoSolicitado.findFirst({
+      where: {
+        id,
+        clienteId
+      }
+    })
+
+    if (!query) {
+      throw new NotFoundException('Solicitação inexistente');
+    }
+    return query;
   }
 
   update(id: number, updateSolicitacaoDto: UpdateSolicitacaoDto) {
