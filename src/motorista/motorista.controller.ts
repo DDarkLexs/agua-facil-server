@@ -9,9 +9,9 @@ export class MotoristaController {
   constructor(private readonly motoristaService: MotoristaService) { }
 
 
-  create(@Body() createMotoristaDto: CreateMotoristaDto) {
-    return this.motoristaService.create(createMotoristaDto);
-  }
+  // create(@Body() createMotoristaDto: CreateMotoristaDto) {
+  //   return this.motoristaService.create(createMotoristaDto);
+  // }
 
   @Get()
   findAll() {
@@ -24,8 +24,8 @@ export class MotoristaController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMotoristaDto: UpdateMotoristaDto) {
-    return this.motoristaService.update(+id, updateMotoristaDto);
+  updateMotoristaCoordenada(@Body() coordenada: string) {
+    return this.motoristaService.updateCoordenada(coordenada);
   }
 
   @Delete(':id')

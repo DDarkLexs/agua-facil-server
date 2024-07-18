@@ -42,6 +42,7 @@ model Motorista {
   usuarioId           Int                 @unique
   fotoPerfil          String
   localizacao         String
+  coordenada          String?            
   avaliacaoMedia      Float
   disponivel          Boolean             @default(true)
   created             DateTime            @default(now())
@@ -79,7 +80,7 @@ model ServicoMotorista {
   descricao    String?
   preco        Float     @default(0)
   ocupado      Boolean   @default(false)
-  litroAgua    Float @default(0.0)   // Adicionando a nova coluna litro de água como um inteiro
+  litroAgua    Float     @default(0.0)   // Adicionando a nova coluna litro de água como um inteiro
   motoristaId  Int       @unique
   motorista    Motorista @relation(fields: [motoristaId], references: [id])
 }

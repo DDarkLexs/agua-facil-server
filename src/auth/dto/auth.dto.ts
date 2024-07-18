@@ -75,8 +75,12 @@ export class CreateMotoristaDto
   fotoPerfil: string;
 
   @IsString()
+  // @IsOptional({ message: 'Por favor, informe a localização atual.' })
   @IsNotEmpty({ message: 'Por favor, informe a localização atual.' })
-  localizacao: string;
+  localizacao: string | null;
+  @IsString()
+  @IsNotEmpty({ message: 'Por favor, informe a coordenada atual.' })
+  coordenada: string;
 
   @IsNotEmpty({ message: 'Por favor, informe o ID do usuário.' })
   usuarioId: number;

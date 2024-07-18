@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMotoristaDto } from './dto/create-motorista.dto';
 import { UpdateMotoristaDto } from './dto/update-motorista.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class MotoristaService {
-  create(createMotoristaDto: CreateMotoristaDto) {
+  constructor(private readonly prismaService: PrismaService) {}
+  updateCoordenada(coordenada: string) {
     return 'This action adds a new motorista';
   }
 
