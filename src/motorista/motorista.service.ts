@@ -1,13 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMotoristaDto } from './dto/create-motorista.dto';
-import { UpdateMotoristaDto } from './dto/update-motorista.dto';
+import { UpdateMotoristaCoordenadaDto, UpdateMotoristaDto } from './dto/update-motorista.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class MotoristaService {
   constructor(private readonly prismaService: PrismaService) {}
-  updateCoordenada(coordenada: string) {
-    return 'This action adds a new motorista';
+  async updateCoordenada({coordenada}: UpdateMotoristaCoordenadaDto, id: number) {
+    
+    return await this.prismaService.motorista.update({
+      data:{
+        coordenada,
+      },
+      where:{
+        id
+      }
+    });
   }
 
   findAll() {

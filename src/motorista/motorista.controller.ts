@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UsePipes, ValidationPipe } from '@nestjs/common';
 import { $Enums } from '@prisma/client';
 import { CreateMotoristaDto } from './dto/create-motorista.dto';
-import { UpdateMotoristaDto } from './dto/update-motorista.dto';
+import { UpdateMotoristaCoordenadaDto, UpdateMotoristaDto } from './dto/update-motorista.dto';
 import { MotoristaService } from './motorista.service';
+import { Autorizacao } from 'src/authorization/authorization.decorator';
 
 @Controller('motorista')
 export class MotoristaController {
@@ -23,9 +24,12 @@ export class MotoristaController {
     return this.motoristaService.findOne(+id);
   }
 
-  @Patch(':id')
-  updateMotoristaCoordenada(@Body() coordenada: string) {
-    return this.motoristaService.updateCoordenada(coordenada);
+  @Patch('/atualizarCoordenada')
+  @UsePipes(ValidationPipe)
+  @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
+  updateMotoristaCoordenada(@Body() data: UpdateMotoristaCoordenadaDto, @Req() req: any) {
+    const user: IUsuarioReq = req.usuario;
+    return this.motoristaService.updateCoordenada(data, user.id);
   }
 
   @Delete(':id')
