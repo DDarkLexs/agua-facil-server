@@ -1,15 +1,15 @@
 import { Injectable, NotFoundException, ServiceUnavailableException, } from '@nestjs/common';
+import { $Enums } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ServicoService } from 'src/servico/servico.service';
-import { UpdateSolicitacaoDto } from './dto/update-solicitacao.dto';
 import { CreateSolicitacaoByMotoristaIdDto } from './dto/create-solicitacao.dto';
-import { $Enums } from '@prisma/client';
+import { UpdateSolicitacaoDto } from './dto/update-solicitacao.dto';
 
 @Injectable()
 export class SolicitacaoService {
   constructor(private readonly prisma: PrismaService,
     private readonly servicoService: ServicoService) { }
-  async create(id: number,clienteId: number, createSolicitacaoDto: CreateSolicitacaoByMotoristaIdDto) {
+  async create(id: number, clienteId: number, createSolicitacaoDto: CreateSolicitacaoByMotoristaIdDto) {
     const service = await this.servicoService.findOne(id);
     if (!service) {
       throw new NotFoundException('Serviço inexistente');
@@ -28,8 +28,17 @@ export class SolicitacaoService {
         ...createSolicitacaoDto  // Verifique se `createSolicitacaoDto` está definido corretamente
       }
     });
-    
-    
+
+    if (newSolicitacao) {
+      this.prisma.servicoMotorista.update({
+        data: {
+          ocupado: true,
+        },
+        where: {
+          id: service.motoristaId
+        }
+      })
+    }
     return newSolicitacao;
   }
 
@@ -76,8 +85,37 @@ export class SolicitacaoService {
     return query;
   }
 
-  update(id: number, updateSolicitacaoDto: UpdateSolicitacaoDto) {
-    return `This action updates a #${id} solicitacao`;
+  async updateByMotorista(id: number, motoristaId: number, updateSolicitacaoDto: UpdateSolicitacaoDto) {
+    const solicitacao = await this.prisma.servicoSolicitado.findFirst({
+      where: {
+        id,
+        motoristaId
+      }
+    })
+    if (!solicitacao) {
+      throw new NotFoundException('Solicitação inexistente');
+    }
+    const solicitacaoAtualizada = await this.prisma.servicoSolicitado.update({
+      where: {
+        id,
+        motoristaId
+      },
+      data: {
+        ...updateSolicitacaoDto
+      }
+    })
+
+    if (solicitacaoAtualizada.status === $Enums.ServicoStatus.CONCLUIDO || solicitacaoAtualizada.status === $Enums.ServicoStatus.RECUSADO) {
+       await this.prisma.servicoMotorista.update({
+        data: {
+          ocupado: false,
+        },
+        where: {
+          id: motoristaId
+        }
+      })
+    }
+    return solicitacaoAtualizada;
   }
 
   remove(id: number) {

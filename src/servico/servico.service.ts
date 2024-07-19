@@ -145,7 +145,11 @@ export class ServicoService {
         ocupado: false,
       },
       include: {
-        motorista: true,
+        motorista: {
+           include: {
+             Usuario: true,
+           }
+        }
       }
     })
     return query;
