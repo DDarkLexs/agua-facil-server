@@ -139,19 +139,23 @@ export class ServicoService {
       ░ ░          ░  ░ ░     ░  ░         ░             ░  ░
       ░                                                        
   */
-  findAllForClienteDisponiveis() {
-    const query = this.prisma.servicoMotorista.findMany({
+  async findAllForClienteDisponivel() {
+    const query = await this.prisma.servicoMotorista.findMany({
       where: {
         ocupado: false,
       },
       include: {
         motorista: {
-           include: {
-             Usuario: true,
-           }
-        }
-      }
-    })
+          include: {
+            Usuario: {
+              include:{
+                Motorista: true
+              }
+            },
+          },
+        },
+      },
+    });
     return query;
   }
 }

@@ -94,10 +94,10 @@ export class ServicoController {
       ░                                                        
   */
 
-  @Get("disponiveis")
+  @Get("cliente/disponivel")
   @Autorizacao($Enums.UsuarioTipo.CLIENTE)
   findAllForClienteDisponiveis(@Req() req: any) {
     // const user: IUsuarioReq = req.usuario;
-    return this.servicoService.findAllForClienteDisponiveis();
+    return this.servicoService.findAllForClienteDisponivel();
   }
 }
