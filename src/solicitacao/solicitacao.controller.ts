@@ -33,7 +33,6 @@ export class SolicitacaoController {
     const clienteid = req['usuario']["Cliente"].id;  
     return this.solicitacaoService.create(id, clienteid, createSolicitacaoDto);
   }
-
   @Get()
   @UsePipes(ValidationPipe)
   @Autorizacao($Enums.UsuarioTipo.CLIENTE)

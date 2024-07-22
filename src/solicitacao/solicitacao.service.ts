@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ServiceUnavailableException, } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { $Enums } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ServicoService } from 'src/servico/servico.service';
@@ -7,15 +11,23 @@ import { UpdateSolicitacaoDto } from './dto/update-solicitacao.dto';
 
 @Injectable()
 export class SolicitacaoService {
-  constructor(private readonly prisma: PrismaService,
-    private readonly servicoService: ServicoService) { }
-  async create(id: number, clienteId: number, createSolicitacaoDto: CreateSolicitacaoByMotoristaIdDto) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly servicoService: ServicoService,
+  ) {}
+  async create(
+    id: number,
+    clienteId: number,
+    createSolicitacaoDto: CreateSolicitacaoByMotoristaIdDto,
+  ) {
     const service = await this.servicoService.findOne(id);
     if (!service) {
       throw new NotFoundException('Serviço inexistente');
     }
     if (service.ocupado === true) {
-      throw new ServiceUnavailableException('Serviço indisponível para solicitação');
+      throw new ServiceUnavailableException(
+        'Serviço indisponível para solicitação',
+      );
     }
 
     const newSolicitacao = await this.prisma.servicoSolicitado.create({
@@ -25,8 +37,8 @@ export class SolicitacaoService {
         titulo: service.titulo,
         clienteId,
         motoristaId: service.motoristaId,
-        ...createSolicitacaoDto  // Verifique se `createSolicitacaoDto` está definido corretamente
-      }
+        ...createSolicitacaoDto, // Verifique se `createSolicitacaoDto` está definido corretamente
+      },
     });
 
     if (newSolicitacao) {
@@ -35,9 +47,9 @@ export class SolicitacaoService {
           ocupado: true,
         },
         where: {
-          id: service.motoristaId
-        }
-      })
+          id: service.motoristaId,
+        },
+      });
     }
     return newSolicitacao;
   }
@@ -51,9 +63,9 @@ export class SolicitacaoService {
   async findAll(clienteId: number) {
     const query = await this.prisma.servicoSolicitado.findMany({
       where: {
-        clienteId
-      }
-    })
+        clienteId,
+      },
+    });
     return query;
   }
   async findAllbyhistorico(clienteId: number) {
@@ -61,13 +73,13 @@ export class SolicitacaoService {
       where: {
         clienteId,
         status: $Enums.ServicoStatus.CONCLUIDO,
-        OR: [
-          {
-            status: $Enums.ServicoStatus.ACEITO
-          },
-        ]
-      }
-    })
+        // OR: [
+        //   {
+        //     status: $Enums.ServicoStatus.ACEITO,
+        //   },
+        // ],
+      },
+    });
     return query;
   }
 
@@ -75,9 +87,9 @@ export class SolicitacaoService {
     const query = await this.prisma.servicoSolicitado.findFirst({
       where: {
         id,
-        clienteId
-      }
-    })
+        clienteId,
+      },
+    });
 
     if (!query) {
       throw new NotFoundException('Solicitação inexistente');
@@ -85,35 +97,55 @@ export class SolicitacaoService {
     return query;
   }
 
-  async updateByMotorista(id: number, motoristaId: number, updateSolicitacaoDto: UpdateSolicitacaoDto) {
+  async updateByMotorista(
+    id: number,
+    motoristaId: number,
+    updateSolicitacaoDto: UpdateSolicitacaoDto,
+  ) {
     const solicitacao = await this.prisma.servicoSolicitado.findFirst({
       where: {
         id,
-        motoristaId
-      }
-    })
+        motoristaId,
+      },
+    });
     if (!solicitacao) {
       throw new NotFoundException('Solicitação inexistente');
     }
-    const solicitacaoAtualizada = await this.prisma.servicoSolicitado.update({
+    let solicitacaoAtualizada;
+    
+    
+    solicitacaoAtualizada = await this.prisma.servicoSolicitado.update({
       where: {
         id,
-        motoristaId
+        motoristaId,
       },
       data: {
-        ...updateSolicitacaoDto
-      }
-    })
+        ...updateSolicitacaoDto,
+      },
+    });
 
-    if (solicitacaoAtualizada.status === $Enums.ServicoStatus.CONCLUIDO || solicitacaoAtualizada.status === $Enums.ServicoStatus.RECUSADO) {
-       await this.prisma.servicoMotorista.update({
+    if (
+      solicitacaoAtualizada.status === $Enums.ServicoStatus.CONCLUIDO ||
+      solicitacaoAtualizada.status === $Enums.ServicoStatus.RECUSADO
+    ) {
+      await this.prisma.servicoMotorista.update({
         data: {
           ocupado: false,
         },
         where: {
-          id: motoristaId
-        }
-      })
+          motoristaId,
+        },
+      });
+
+      solicitacaoAtualizada = await this.prisma.servicoSolicitado.update({
+        where: {
+          id,
+          motoristaId,
+        },
+        data: {
+          dataConclusao:new Date(),
+        },
+      });
     }
     return solicitacaoAtualizada;
   }

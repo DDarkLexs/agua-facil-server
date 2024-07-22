@@ -27,7 +27,7 @@ datasource db {
 model Usuario {
   id        Int         @id @default(autoincrement())
   nome      String
-  email     String
+  email     String?
   telefone  String      @unique
   senha     String
   tipo      UsuarioTipo
@@ -47,7 +47,7 @@ model Motorista {
   disponivel          Boolean             @default(true)
   created             DateTime            @default(now())
   updated             DateTime            @updatedAt
-  Usuario             Usuario             @relation(fields: [usuarioId], references: [id])
+  Usuario             Usuario             @relation(fields: [usuarioId], references: [id],onDelete: Cascade,onUpdate: Cascade)
   ServicosSolicitados ServicoSolicitado[]
   Avaliacao           Avaliacao[]
   ServicoMotorista    ServicoMotorista[]
@@ -59,7 +59,7 @@ model Cliente {
   fotoPerfil          String
   created             DateTime            @default(now())
   updated             DateTime            @updatedAt
-  Usuario             Usuario             @relation(fields: [usuarioId], references: [id])
+  Usuario             Usuario             @relation(fields: [usuarioId], references: [id],onDelete: Cascade, onUpdate: Cascade)
   ServicosSolicitados ServicoSolicitado[]
   Avaliacoes          Avaliacao[]
 }

@@ -1,14 +1,22 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Req,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { $Enums } from '@prisma/client';
-import { CreateMotoristaDto } from './dto/create-motorista.dto';
-import { UpdateMotoristaCoordenadaDto, UpdateMotoristaDto } from './dto/update-motorista.dto';
-import { MotoristaService } from './motorista.service';
 import { Autorizacao } from 'src/authorization/authorization.decorator';
+import { UpdateMotoristaCoordenadaDto } from './dto/update-motorista.dto';
+import { MotoristaService } from './motorista.service';
 
 @Controller('motorista')
 export class MotoristaController {
-  constructor(private readonly motoristaService: MotoristaService) { }
-
+  constructor(private readonly motoristaService: MotoristaService) {}
 
   // create(@Body() createMotoristaDto: CreateMotoristaDto) {
   //   return this.motoristaService.create(createMotoristaDto);
@@ -27,7 +35,10 @@ export class MotoristaController {
   @Patch('/atualizarCoordenada')
   @UsePipes(ValidationPipe)
   @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
-  updateMotoristaCoordenada(@Body() data: UpdateMotoristaCoordenadaDto, @Req() req: any) {
+  updateMotoristaCoordenada(
+    @Body() data: UpdateMotoristaCoordenadaDto,
+    @Req() req: any,
+  ) {
     const user: IUsuarioReq = req.usuario;
     return this.motoristaService.updateCoordenada(data, user.id);
   }

@@ -31,6 +31,7 @@ export class CreateUsuarioDto
   nome: string;
 
   @IsEmail({}, { message: 'Por favor, informe um email válido.' })
+  @IsOptional()
   email: string;
 
   @IsEnum($Enums.UsuarioTipo, {
