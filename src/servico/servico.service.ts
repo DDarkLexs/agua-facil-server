@@ -147,11 +147,7 @@ export class ServicoService {
       include: {
         motorista: {
           include: {
-            Usuario: {
-              include:{
-                Motorista: true
-              }
-            },
+            usuario: true,
           },
         },
       },

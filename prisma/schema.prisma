@@ -33,8 +33,8 @@ model Usuario {
   tipo      UsuarioTipo
   created   DateTime    @default(now())
   updated   DateTime    @updatedAt
-  Motorista Motorista?
-  Cliente   Cliente?
+  motorista Motorista?
+  cliente   Cliente?
 }
 
 model Motorista {
@@ -47,10 +47,10 @@ model Motorista {
   disponivel          Boolean             @default(true)
   created             DateTime            @default(now())
   updated             DateTime            @updatedAt
-  Usuario             Usuario             @relation(fields: [usuarioId], references: [id],onDelete: Cascade,onUpdate: Cascade)
-  ServicosSolicitados ServicoSolicitado[]
-  Avaliacao           Avaliacao[]
-  ServicoMotorista    ServicoMotorista[]
+  usuario             Usuario             @relation(fields: [usuarioId], references: [id],onDelete: Cascade,onUpdate: Cascade)
+  servicosSolicitados ServicoSolicitado[]
+  avaliacao           Avaliacao[]
+  servicoMotorista    ServicoMotorista[]
 }
 
 model Cliente {
@@ -59,9 +59,9 @@ model Cliente {
   fotoPerfil          String
   created             DateTime            @default(now())
   updated             DateTime            @updatedAt
-  Usuario             Usuario             @relation(fields: [usuarioId], references: [id],onDelete: Cascade, onUpdate: Cascade)
-  ServicosSolicitados ServicoSolicitado[]
-  Avaliacoes          Avaliacao[]
+  usuario             Usuario             @relation(fields: [usuarioId], references: [id],onDelete: Cascade, onUpdate: Cascade)
+  servicosSolicitados ServicoSolicitado[]
+  avaliacoes          Avaliacao[]
 }
 
 //   ██████ ▓█████  ██▀███   ██▒   █▓ ██▓ ▄████▄  ▓█████ 
@@ -99,8 +99,8 @@ model ServicoSolicitado {
   motoristaId   Int
   created       DateTime      @default(now())
   updated       DateTime      @updatedAt
-  Cliente       Cliente       @relation(fields: [clienteId], references: [id])
-  Motorista     Motorista     @relation(fields: [motoristaId], references: [id])
+  cliente       Cliente       @relation(fields: [clienteId], references: [id])
+  motorista     Motorista     @relation(fields: [motoristaId], references: [id])
 }
 
 model Avaliacao {
@@ -111,8 +111,8 @@ model Avaliacao {
   comentario  String?
   created     DateTime  @default(now())
   updated     DateTime  @updatedAt
-  Cliente     Cliente   @relation(fields: [clienteId], references: [id])
-  Motorista   Motorista @relation(fields: [motoristaId], references: [id])
+  cliente     Cliente   @relation(fields: [clienteId], references: [id])
+  motorista   Motorista @relation(fields: [motoristaId], references: [id])
 }
 
 // ▓█████  ███▄    █  █    ██  ███▄ ▄███▓

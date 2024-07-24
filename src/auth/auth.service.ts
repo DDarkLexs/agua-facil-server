@@ -50,7 +50,7 @@ export class AuthService {
     const result = await this.prisma.motorista.create({
       data,
       include: {
-        Usuario: {},
+        usuario: {},
       },
     });
 
@@ -66,7 +66,7 @@ export class AuthService {
         telefone,
       },
       include: {
-        Motorista: {},
+        motorista: true,
       },
 
     });
@@ -86,10 +86,10 @@ export class AuthService {
     const token = await this.jwtService.signAsync(usuarioNoBanco);
 
     // Retorna os dados do usuário autenticado
-    const { Motorista, ...usuario } = usuarioNoBanco;
+    const { motorista, ...usuario } = usuarioNoBanco;
     return {
       usuario,
-      motorista: Motorista,
+      motorista,
       token,
     };
   }
@@ -122,7 +122,7 @@ export class AuthService {
     const result = await this.prisma.cliente.create({
       data,
       include: {
-        Usuario: {},
+        usuario: {},
       },
     });
 
@@ -137,7 +137,7 @@ export class AuthService {
         telefone,
       },
       include: {
-        Cliente: {},
+        cliente: {},
       },
 
     });
@@ -157,10 +157,10 @@ export class AuthService {
     const token = await this.jwtService.signAsync(usuarioNoBanco);
 
     // Retorna os dados do usuário autenticado
-    const { Cliente, ...usuario } = usuarioNoBanco;
+    const { cliente, ...usuario } = usuarioNoBanco;
     return {
       usuario,
-      cliente: Cliente,
+      cliente,
       token,
     };
   }
