@@ -72,13 +72,17 @@ export class SolicitacaoService {
     const query = await this.prisma.servicoSolicitado.findMany({
       where: {
         clienteId,
-        status: $Enums.ServicoStatus.CONCLUIDO,
-        // OR: [
-        //   {
-        //     status: $Enums.ServicoStatus.ACEITO,
-        //   },
-        // ],
+        // status: $Enums.ServicoStatus.CONCLUIDO,
+        OR: [
+          {
+            status: $Enums.ServicoStatus.RECUSADO,
+          },
+          {
+            status: $Enums.ServicoStatus.CONCLUIDO,
+          },
+        ],
       },
+
     });
     return query;
   }

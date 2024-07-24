@@ -39,7 +39,7 @@ export class ServicoController {
     @Req() req: any,
   ): Promise<ServicoMotorista> {
     return this.servicoService.create(
-      req.usuario.Motorista.id,
+      req.usuario.motorista.id,
       createServicoDto,
     );
   }
@@ -47,7 +47,7 @@ export class ServicoController {
   @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
   findAllByMotorista(@Req() req: any) {
     const user: IUsuarioReq = req.usuario;
-    return this.servicoService.findAllByMotorista(user.Motorista.id);
+    return this.servicoService.findAllByMotorista(user.motorista.id);
   }
   @Get()
   findAll() {
@@ -57,7 +57,7 @@ export class ServicoController {
   @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
   findOne(@Param('id') id: string, @Req() req: any) {
     const user: IUsuarioReq = req.usuario;
-    return this.servicoService.findOneWithMotorista(user.Motorista.id, Number(id));
+    return this.servicoService.findOneWithMotorista(user.motorista.id, Number(id));
   }
   @Patch(':id')
   @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
@@ -68,7 +68,7 @@ export class ServicoController {
   ) {
     const user: IUsuarioReq = req.usuario;
     return this.servicoService.update(
-      user.Motorista.id,
+      user.motorista.id,
       Number(id),
       updateServicoDto,
     );
@@ -77,7 +77,7 @@ export class ServicoController {
   @Autorizacao($Enums.UsuarioTipo.MOTORISTA)
   remove(@Param('id') id: string, @Req() req: any) {
     const user: IUsuarioReq = req.usuario;
-    return this.servicoService.remove(user.Motorista.id, Number(id));
+    return this.servicoService.remove(user.motorista.id, Number(id));
   }
 
   /* 

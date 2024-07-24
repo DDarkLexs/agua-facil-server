@@ -30,32 +30,32 @@ export class SolicitacaoController {
     @Body() createSolicitacaoDto: CreateSolicitacaoByMotoristaIdDto,
     @Req() req: any
   ): Promise<ServicoSolicitado> {
-    const clienteid = req['usuario']["Cliente"].id;  
+    const clienteid = req['usuario']["cliente"].id;  
     return this.solicitacaoService.create(id, clienteid, createSolicitacaoDto);
   }
   @Get()
   @UsePipes(ValidationPipe)
   @Autorizacao($Enums.UsuarioTipo.CLIENTE)
   findAll(@Req() req: any) {
-    const clienteid = req['usuario']["Cliente"].id;
+    const clienteid = req['usuario']["cliente"].id;
     return this.solicitacaoService.findAll(clienteid);
   }
 
   @Get('cliente/:id')
   @Autorizacao($Enums.UsuarioTipo.CLIENTE)
   findOne(@Param('id', convertToNumberPipe) id: number, @Req() req: any) {
-    const clienteid = req['usuario']["Cliente"].id;
+    const clienteid = req['usuario']["cliente"].id;
     return this.solicitacaoService.findOne(id, clienteid);
   }
   @Get('cliente/:id')
   findOneByprops(@Param('id', convertToNumberPipe) id: number, @Req() req: any) {
-    const clienteid = req['usuario']["Cliente"].id;
+    const clienteid = req['usuario']["cliente"].id;
     return this.solicitacaoService.findOne(id, clienteid);
   }
   @Get('historico')
   @Autorizacao($Enums.UsuarioTipo.CLIENTE)
   findAllByhistorico(@Req() req: any) {
-    const clienteid = req['usuario']["Cliente"].id;
+    const clienteid = req['usuario']["cliente"].id;
     return this.solicitacaoService.findAllbyhistorico(clienteid);
   }
   // @Patch(':id')
@@ -90,7 +90,7 @@ export class SolicitacaoController {
     @Req() req: any,
     @Param('servicoId', convertToNumberPipe) servicoId: number
   )/* : Promise<ServicoSolicitado> */ {
-    const motoristaId = req['usuario']["Motorista"].id;
+    const motoristaId = req['usuario']["motorista"].id;
     
     return this.solicitacaoService.updateByMotorista(servicoId, motoristaId, createSolicitacaoDto);
   }

@@ -12,7 +12,7 @@ declare global {
     }
 
     interface IUsuarioReq extends Usuario {
-        Motorista: Motorista;
+        motorista: Motorista;
     }
     iat: number;
     exp: number;
