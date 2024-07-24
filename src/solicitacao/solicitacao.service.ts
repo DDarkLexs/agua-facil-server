@@ -82,7 +82,23 @@ export class SolicitacaoService {
           },
         ],
       },
-
+      include:{
+        motorista: {
+          include:{
+            usuario: {
+              select:{
+                email: true,
+                nome: true,
+                telefone: true,
+                tipo: true,
+                id:true,
+                created: true,
+              }
+            }
+            
+          }
+        }
+      }
     });
     return query;
   }
