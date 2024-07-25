@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { $Enums, Cliente, Motorista } from '@prisma/client';
+import { $Enums, Cliente, Motorista, Usuario } from '@prisma/client';
 import { HashService } from '../hash/hash.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -169,5 +169,13 @@ export class AuthService {
     hashedPassword: string,
   ): Promise<boolean> {
     return await this.hashService.comparePasswords(password, hashedPassword);
+  }
+  async verify(token: string) {
+    const payload = await this.jwtService.verifyAsync(token, {
+      secret: process.env.SECRET,
+    });
+    // 💡 We're assigning the payload to the request object here
+    // so that we can access it in our route handlers
+    return payload;
   }
 }

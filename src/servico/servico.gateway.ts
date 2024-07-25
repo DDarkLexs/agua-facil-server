@@ -8,11 +8,14 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
+import { AuthService } from 'src/auth/auth.service';
 
 @WebSocketGateway()
 export class ServicoGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+
+  constructor(private readonly authService: AuthService) {}
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('ServicoGateway');
 
@@ -21,15 +24,26 @@ export class ServicoGateway
     this.logger.log('Init');
   }
 
-  handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
+
+  async getUser(token: string) {
+    const user = await this.authService.verify(token);
+    delete user.senha;
+    return user;
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
-    this.logger.log(`Client connected: ${client.id}`);
+  async handleConnection(client: Socket): Promise<void> {
+    this.logger.log(client)
+    console.log(client);
+    
+    const user = await this.getUser(client.handshake.auth.token);
+    !user && client.disconnect();
+    console.log('Usuario conectado: ', user.nome);
   }
-  handleMessage(client: Socket, payload: string): void {
-    this.server.emit('messageToClient', payload);
+  async handleDisconnect(client: Socket): Promise<void> {
+    const user = await this.getUser(client.handshake.auth.token);
+    !user && client.disconnect();
+
+    console.log('usuario desconectado: ' + user.nome);
   }
 
 }
