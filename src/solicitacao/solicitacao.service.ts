@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
   ServiceUnavailableException,
@@ -102,6 +103,47 @@ export class SolicitacaoService {
     });
     return query;
   }
+
+  async findOneEmCursoCliente(id: number) {
+    if (!id) {
+      throw new ForbiddenException('Id não informado!');
+    }
+    const response = await this.prisma.servicoSolicitado.findFirst({
+      where: {
+        clienteId: id,
+        OR: [
+          {
+            status: $Enums.ServicoStatus.ACEITO,
+          },
+          {
+            status: $Enums.ServicoStatus.PENDENTE,
+          },
+        ]
+      },
+    });
+    return response;
+  }
+
+  async findOneEmCursoMotorista(id: number) {
+    if (!id) {
+      throw new ForbiddenException('Id não informado!');
+    }
+    const response = await this.prisma.servicoSolicitado.findFirst({
+      where: {
+        motoristaId: id,
+        OR: [
+          {
+            status: $Enums.ServicoStatus.ACEITO,
+          },
+          {
+            status: $Enums.ServicoStatus.PENDENTE,
+          },
+        ]
+      },
+    });
+    return response;
+  }
+
 
   async findOne(id: number, clienteId: number) {
     const query = await this.prisma.servicoSolicitado.findFirst({

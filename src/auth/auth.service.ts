@@ -170,7 +170,7 @@ export class AuthService {
   ): Promise<boolean> {
     return await this.hashService.comparePasswords(password, hashedPassword);
   }
-  async verify(token: string) {
+  async verify(token: string): Promise<any> {
     const payload = await this.jwtService.verifyAsync(token, {
       secret: process.env.SECRET,
     });

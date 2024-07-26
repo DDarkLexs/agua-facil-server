@@ -4,7 +4,7 @@ import {
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
-import { ServicoMotorista } from '@prisma/client';
+import { $Enums, ServicoMotorista } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateServicoDto } from './dto/create-servico.dto';
 import { UpdateServicoDto } from './dto/update-servico.dto';
@@ -154,4 +154,5 @@ export class ServicoService {
     });
     return query;
   }
+
 }
