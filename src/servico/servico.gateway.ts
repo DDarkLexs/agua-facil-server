@@ -7,17 +7,21 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { $Enums } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { ServicoService } from './servico.service';
 import { SolicitacaoService } from 'src/solicitacao/solicitacao.service';
-import { $Enums } from '@prisma/client';
+import { ServicoService } from './servico.service';
 
 @WebSocketGateway({ cors: true })
 export class ServicoGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-
-  constructor(private readonly authService: AuthService,private readonly solicitacao: SolicitacaoService, private readonly servico: ServicoService) { }
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
+  constructor(
+    private readonly authService: AuthService,
+    private readonly solicitacao: SolicitacaoService,
+    private readonly servico: ServicoService,
+  ) {}
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('ServicoGateway');
 
@@ -25,39 +29,43 @@ export class ServicoGateway
   afterInit(server: Server) {
     this.logger.log('Init');
   }
-  
 
   @SubscribeMessage('joinPrivateSolicitacao')
   async privatizarPedido(client: Socket, data: any): Promise<void> {
     const user = await this.getUser(client.handshake.auth.token);
-    let servico
+    let servico;
+    console.log(user.nome);
+    
     if (user) {
       switch (user.tipo) {
         case $Enums.UsuarioTipo.CLIENTE:
-          servico = await this.solicitacao.findOneEmCursoCliente(user.cliente.id);
-            
-            break;
-            
-            case $Enums.UsuarioTipo.MOTORISTA:
-              servico = await this.solicitacao.findOneEmCursoMotorista(user.motorista.id);
-              
+          servico = await this.solicitacao.findOneEmCursoCliente(
+            user.cliente.id,
+          );
+          client.join(servico.id);
+          client.broadcast
+            .to(servico.id)
+            .emit('JoinRoomPrivateRoom', `${user.nome} juntou-se`);
+          break;
+
+        case $Enums.UsuarioTipo.MOTORISTA:
+          servico = await this.solicitacao.findOneEmCursoMotorista(
+            user.motorista.id,
+          );
+          // console.log(servico.id);
+          
+          client.join(servico.id);
+          client.broadcast
+            .to(servico.id)
+            .emit('JoinRoomPrivateRoom', `${user.nome} juntou-se`);
           break;
         default:
-          client.disconnect();    
+          client.disconnect();
           break;
       }
-      
     } else {
       client.disconnect();
     }
-
-
-    // client.join(rooms.chatKey);
-    console.log(servico);
-    
-    // client.broadcast
-    //   .to(rooms.chatKey)
-    //   .emit('JoinRoomPrivateRoom', `${user.nome} juntou se na conversa`);
   }
   async getUser(token: string) {
     try {
@@ -69,9 +77,9 @@ export class ServicoGateway
   }
   async handleConnection(client: Socket): Promise<void> {
     // console.log(client);
-    
+
     const user = await this.getUser(client.handshake.auth.token);
-    
+
     if (user) {
       this.logger.log(user.nome);
     } else {
@@ -85,7 +93,6 @@ export class ServicoGateway
       client.disconnect();
     } else {
       console.log('usuario desconectado: ' + user.nome);
-
     }
   }
   /* 
@@ -101,12 +108,7 @@ export class ServicoGateway
             ░       ░ ░               ░ ░     ░      ░        ░                 ░  ░
   */
 
-
-
-
-
-
-      /* 
+  /* 
             
       ▄████▄   ██▓     ██▓▓█████  ███▄    █ ▄▄▄█████▓▓█████ 
       ▒██▀ ▀█  ▓██▒    ▓██▒▓█   ▀  ██ ▀█   █ ▓  ██▒ ▓▒▓█   ▀ 
