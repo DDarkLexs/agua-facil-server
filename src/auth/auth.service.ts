@@ -178,4 +178,12 @@ export class AuthService {
     // so that we can access it in our route handlers
     return payload;
   }
+  verifySync(token: string): Promise<any> {
+    const payload = this.jwtService.verify(token, {
+      secret: process.env.SECRET,
+    });
+    // 💡 We're assigning the payload to the request object here
+    // so that we can access it in our route handlers
+    return payload;
+  }
 }

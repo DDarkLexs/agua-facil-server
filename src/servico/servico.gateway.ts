@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -11,15 +11,19 @@ import * as md5 from 'md5';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { SolicitacaoService } from 'src/solicitacao/solicitacao.service';
+import { WsParams, WsUser } from './servico.decorator';
+import { WsUserGuard } from './servico.guard';
 import { ServicoService } from './servico.service';
 
 @WebSocketGateway({ cors: true })
+@UseGuards(WsUserGuard)
 export class ServicoGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly authService: AuthService,
     private readonly solicitacao: SolicitacaoService,
     private readonly servico: ServicoService,
+
   ) { }
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('ServicoGateway');
@@ -56,9 +60,10 @@ export class ServicoGateway
     console.log('usuario desconectado');
   }
   @SubscribeMessage('msg')
-  async receberMsg(client: Socket, data: any) {
-    const user = await this.getUser(client.handshake.auth.token);
-    console.log(user.nome);
+  async receberMsg(@WsUser() client: any, @WsParams() data: any) {
+    const user = client.data
+
+    console.log(data);
     client.broadcast.emit('msg_', 'ola');
   }
   /* 
@@ -96,7 +101,7 @@ export class ServicoGateway
   }
   @SubscribeMessage('motoristaAceitaSolicitacao')
   handleEvent(client: Socket, data: string) {
-    
+
     return data;
   }
 
