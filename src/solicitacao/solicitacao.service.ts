@@ -104,6 +104,48 @@ export class SolicitacaoService {
     return query;
   }
 
+  async findOneByMotorista(id: number, motoristaId: number) {
+    if (!id) {
+      throw new ForbiddenException('Id não informado!');
+    }
+    const response = await this.prisma.servicoSolicitado.findFirst({
+      where: {
+         id,
+         motoristaId,
+        OR: [
+          {
+            status: $Enums.ServicoStatus.ACEITO,
+          },
+          {
+            status: $Enums.ServicoStatus.PENDENTE,
+          },
+        ]
+      },
+    });
+    return response;
+  }
+  async findOneByCliente(id: number, clienteId: number) {
+   
+    
+    if (!id) {
+      throw new ForbiddenException('Id não informado!');
+    }
+    const response = await this.prisma.servicoSolicitado.findFirst({
+      where: {
+         id,
+         clienteId,
+        OR: [
+          {
+            status: $Enums.ServicoStatus.ACEITO,
+          },
+          {
+            status: $Enums.ServicoStatus.PENDENTE,
+          },
+        ]
+      },
+    });
+    return response;
+  }
   async findOneEmCursoCliente(id: number) {
     if (!id) {
       throw new ForbiddenException('Id não informado!');
