@@ -26,8 +26,6 @@ export class WsUserGuard implements CanActivate {
     
     const user = this.extractUser(client); // Implemente a função `extractUser`
     client.data = user; // Armazene os dados do usuário na conexão
-    // console.log(user);
-    
     return true;
   }
 

@@ -7,11 +7,12 @@ import {
   WebSocketGateway,
   WebSocketServer
 } from '@nestjs/websockets';
+import { $Enums } from '@prisma/client';
 import * as md5 from 'md5';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { SolicitacaoService } from 'src/solicitacao/solicitacao.service';
-import { WsParams, WsUser } from './servico.decorator';
+import { WsParams, WsUser, WsUserQuery } from './servico.decorator';
 import { WsUserGuard } from './servico.guard';
 import { ServicoService } from './servico.service';
 
@@ -32,20 +33,10 @@ export class ServicoGateway
   afterInit(server: Server) {
     this.logger.log('Init');
   }
-
-
-  async getUser(token: string) {
-    try {
-      const user = await this.authService.verify(token);
-      return user;
-    } catch (error) {
-      this.logger.error(error);
-    }
-  }
-  async handleConnection(client: Socket): Promise<void> {
+  async handleConnection(@WsUser() client): Promise<void> {
     // console.log(client);
 
-    const user = await this.getUser(client.handshake.auth.token);
+    const user = client.data
 
     if (user) {
       this.logger.log(user.nome);
@@ -62,6 +53,8 @@ export class ServicoGateway
   @SubscribeMessage('msg')
   async receberMsg(@WsUser() client: any, @WsParams() data: any) {
     const user = client.data
+    console.log(user);
+
 
     console.log(data);
     client.broadcast.emit('msg_', 'ola');
@@ -80,12 +73,13 @@ export class ServicoGateway
   */
 
   @SubscribeMessage('joinPrivateAsMotorista')
-  async juntarSecomoMotorista(client: Socket, { solicitacaoId }: any): Promise<void> {
-    const user = await this.getUser(client.handshake.auth.token);
+  async juntarSecomoMotorista(@WsUser() client: Socket, @WsParams() data: any): Promise<void> {
+    const user = client.data;
     let servico;
     if (user) {
+
       servico = await this.solicitacao.findOneByMotorista(
-        solicitacaoId,
+        Number(client.handshake.query.solicitacaoId),
         user.motorista.id,
       );
       const hash = md5(servico.id);
@@ -100,9 +94,17 @@ export class ServicoGateway
     }
   }
   @SubscribeMessage('motoristaAceitaSolicitacao')
-  handleEvent(client: Socket, data: string) {
-
-    return data;
+  handleEvent(@WsUser() client: Socket, @WsUserQuery() query: any, @WsParams() data: any) {
+    const user: any = client.data;
+    this.logger.log(query.solicitacaoId)
+    if (user.tipo === $Enums.UsuarioTipo.MOTORISTA) {
+      this.solicitacao.updateByMotorista(Number(query.solicitacaoId),
+        user.motorista.id,
+        {
+          status: $Enums.ServicoStatus.ACEITO
+        });
+      client.broadcast.emit('motoristaAceitaSolicitacao', `${user.nome} aceitou`);
+    }
   }
 
   /* 
@@ -119,12 +121,12 @@ export class ServicoGateway
       ░                                                      
       */
   @SubscribeMessage('joinPrivateAsCliente')
-  async juntarSecomoCliente(client: Socket, { solicitacaoId }: any): Promise<void> {
-    const user = await this.getUser(client.handshake.auth.token);
+  async juntarSecomoCliente(@WsUser() client: Socket, @WsParams() data: any): Promise<void> {
+    const user = client.data;
     let servico;
     if (user) {
       servico = await this.solicitacao.findOneByCliente(
-        solicitacaoId,
+        Number(client.handshake.query.solicitacaoId),
         user.cliente.id,
       );
       const hash = md5(servico.id);
