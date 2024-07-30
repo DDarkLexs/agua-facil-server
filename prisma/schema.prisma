@@ -135,4 +135,5 @@ enum ServicoStatus {
   ACEITO
   CONCLUIDO
   RECUSADO
+  CANCELADO
 }

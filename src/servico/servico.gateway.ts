@@ -34,12 +34,9 @@ export class ServicoGateway
     this.logger.log('Init');
   }
   async handleConnection(@WsUser() client): Promise<void> {
-    // console.log(client);
 
-    const user = client.data
-
-    if (user) {
-      this.logger.log(user.nome);
+    if (client.id) {
+      console.log(client.id);
     } else {
       client.disconnect();
       // console.log('Usuario conectado: ', user.nome);
@@ -96,7 +93,7 @@ export class ServicoGateway
   @SubscribeMessage('motoristaAceitaSolicitacao')
   handleEvent(@WsUser() client: Socket, @WsUserQuery() query: any, @WsParams() data: any) {
     const user: any = client.data;
-    this.logger.log(query.solicitacaoId)
+    // this.logger.log(query.solicitacaoId)
     if (user.tipo === $Enums.UsuarioTipo.MOTORISTA) {
       this.solicitacao.updateByMotorista(Number(query.solicitacaoId),
         user.motorista.id,
@@ -140,5 +137,19 @@ export class ServicoGateway
       client.disconnect();
     }
   }
-
+  @SubscribeMessage('clienteCancelaSolicitacao')
+  async clienteCancela(@WsUser() client: Socket, @WsParams() data: any) {
+    const user = client.data;
+    const servico = await this.solicitacao.findOneByCliente(
+      Number(client.handshake.query.solicitacaoId),
+      user.cliente.id,
+    );
+    if (user.tipo === $Enums.UsuarioTipo.CLIENTE) {
+      const update = await this.solicitacao.updateByCliente(user.cliente.id, servico.id,
+        $Enums.ServicoStatus.CANCELADO
+      )
+      client.broadcast
+        .emit('clienteCancelaSolicitacao', update);
+    }
+  }
 }
