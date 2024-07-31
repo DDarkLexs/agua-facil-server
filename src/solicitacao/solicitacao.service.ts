@@ -9,12 +9,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ServicoService } from 'src/servico/servico.service';
 import { CreateSolicitacaoByMotoristaIdDto } from './dto/create-solicitacao.dto';
 import { UpdateSolicitacaoDto } from './dto/update-solicitacao.dto';
+import { LocalizacaoService } from 'src/localizacao/localizacao.service';
 
 @Injectable()
 export class SolicitacaoService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly servicoService: ServicoService,
+    private readonly localizacaoService: LocalizacaoService,
   ) { }
   async create(
     id: number,
@@ -31,6 +33,8 @@ export class SolicitacaoService {
       );
     }
 
+    const location = await this.localizacaoService.findLocationByCoordenadaAsync(createSolicitacaoDto.coordenada)
+
     const newSolicitacao = await this.prisma.servicoSolicitado.create({
       data: {
         litroAgua: service.litroAgua,
@@ -39,6 +43,7 @@ export class SolicitacaoService {
         clienteId,
         motoristaId: service.motoristaId,
         ...createSolicitacaoDto, // Verifique se `createSolicitacaoDto` está definido corretamente
+        endereco: location.data.display_name
       },
     });
 
@@ -104,7 +109,7 @@ export class SolicitacaoService {
     return query;
   }
 
-  async findOneByMotorista(id: number, motoristaId: number) {
+  async findOneByMotoristaAvailable(id: number, motoristaId: number) {
     if (!id) {
       throw new ForbiddenException('Id não informado!');
     }
@@ -124,7 +129,7 @@ export class SolicitacaoService {
     });
     return response;
   }
-  async findOneByCliente(id: number, clienteId: number) {
+  async findOneByClienteAvailable(id: number, clienteId: number) {
 
 
     if (!id) {
@@ -208,7 +213,8 @@ export class SolicitacaoService {
         clienteId,
       },
     });
-
+    console.log(solicitacao);
+    
     if (!solicitacao) {
       throw new NotFoundException('Solicitação inexistente');
     }
@@ -221,10 +227,10 @@ export class SolicitacaoService {
       where: {
         id,
         clienteId,
-        dataConclusao: date
       },
       data: {
         status,
+        dataConclusao: date
       },
     });
     
@@ -232,6 +238,64 @@ export class SolicitacaoService {
     
   }
   async updateByMotorista(
+    id: number,
+    motoristaId: number,
+    updateSolicitacaoDto: UpdateSolicitacaoDto,
+  ) {
+    const solicitacao = await this.prisma.servicoSolicitado.findFirst({
+      where: {
+        id,
+        motoristaId,
+      },
+    });
+    if (!solicitacao) {
+      throw new NotFoundException('Solicitação inexistente');
+    }
+    let solicitacaoAtualizada;
+    let date = undefined;
+
+    if (updateSolicitacaoDto.status === $Enums.ServicoStatus.CONCLUIDO || updateSolicitacaoDto.status === $Enums.ServicoStatus.RECUSADO || updateSolicitacaoDto.status === $Enums.ServicoStatus.CANCELADO) {
+      date = new Date();
+    }
+
+
+    solicitacaoAtualizada = await this.prisma.servicoSolicitado.update({
+      where: {
+        id,
+        motoristaId,
+      },
+      data: {
+        ...updateSolicitacaoDto,
+        dataConclusao: date,
+      },
+    });
+
+    if (
+      solicitacaoAtualizada.status === $Enums.ServicoStatus.CONCLUIDO ||
+      solicitacaoAtualizada.status === $Enums.ServicoStatus.RECUSADO  
+    ) {
+      await this.prisma.servicoMotorista.update({
+        data: {
+          ocupado: false,
+        },
+        where: {
+          motoristaId,
+        },
+      });
+
+      solicitacaoAtualizada = await this.prisma.servicoSolicitado.update({
+        where: {
+          id,
+          motoristaId,
+        },
+        data: {
+          dataConclusao: new Date(),
+        },
+      });
+    }
+    return solicitacaoAtualizada;
+  }
+  async updateByMotoristaWithcoordenada(
     id: number,
     motoristaId: number,
     updateSolicitacaoDto: UpdateSolicitacaoDto,

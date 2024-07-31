@@ -65,9 +65,11 @@ export class CreateMotoristaDto
   @Min(0)
   @Max(5)
   avaliacaoMedia: number;
-
   @IsNotEmpty({ message: 'Por favor, informe a disponibilidade do motorista.' })
   disponivel: boolean;
+  @IsString({message: 'Por favor, informe o endereço do motorista.',})
+  @IsOptional({ message: 'Por favor, informe o endereço do motorista.' })
+  endereco: string;
 
   @IsUrl(
     {},

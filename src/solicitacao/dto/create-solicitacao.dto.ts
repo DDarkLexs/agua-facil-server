@@ -6,6 +6,9 @@ export class CreateSolicitacaoDto implements Omit<ServicoSolicitado, "clienteId"
     @IsNotEmpty({ message: 'A coordenada é obrigatória' })
     coordenada: string;
     @IsOptional()
+    @IsString({ message: 'Por favor, Informe o endereço' })
+    endereco: string;
+    @IsOptional()
     dataConclusao: Date;
     @IsNotEmpty({ message: 'O id do motorista é obrigatório' })
     motoristaId: number;

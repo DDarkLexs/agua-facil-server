@@ -43,6 +43,7 @@ model Motorista {
   fotoPerfil          String
   localizacao         String
   coordenada          String?            
+  endereco            String?
   avaliacaoMedia      Float
   disponivel          Boolean             @default(true)
   created             DateTime            @default(now())
@@ -94,6 +95,7 @@ model ServicoSolicitado {
   preco         Float
   status        ServicoStatus @default(PENDENTE)
   coordenada    String
+  endereco      String?
   dataConclusao DateTime?
   clienteId     Int
   motoristaId   Int

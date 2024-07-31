@@ -6,10 +6,13 @@ import { SolicitacaoService } from 'src/solicitacao/solicitacao.service';
 import { ServicoController } from './servico.controller';
 import { ServicoGateway } from './servico.gateway';
 import { ServicoService } from './servico.service';
+import { LocalizacaoService } from 'src/localizacao/localizacao.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   controllers: [ServicoController],
-  providers: [AuthService, HashService, ServicoService, PrismaService, ServicoGateway, SolicitacaoService],
+  providers: [AuthService, HashService, ServicoService, PrismaService, ServicoGateway, SolicitacaoService, LocalizacaoService],
+  imports: [HttpModule],
   // imports: [AuthService],
 })
 export class ServicoModule { }

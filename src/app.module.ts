@@ -11,9 +11,12 @@ import { MotoristaModule } from './motorista/motorista.module';
 import { PrismaService } from './prisma/prisma.service';
 import { ServicoModule } from './servico/servico.module';
 import { SolicitacaoModule } from './solicitacao/solicitacao.module';
+import { LocalizacaoService } from './localizacao/localizacao.service';
+import { LocalizacaoModule } from './localizacao/localizacao.module';
+import { HttpModule } from '@nestjs/axios';
 @Module({
-  imports: [AuthModule, ClienteModule, MotoristaModule, ServicoModule, AuthorizationModule, SolicitacaoModule],
+  imports: [AuthModule, ClienteModule, MotoristaModule, ServicoModule, AuthorizationModule, SolicitacaoModule, LocalizacaoModule, HttpModule],
   controllers: [AppController, AuthController],
-  providers: [AppService, AuthService, PrismaService, HashService],
+  providers: [AppService, AuthService, PrismaService, HashService, LocalizacaoService],
 })
 export class AppModule { }
