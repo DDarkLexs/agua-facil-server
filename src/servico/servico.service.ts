@@ -142,7 +142,9 @@ export class ServicoService {
   async findAllForClienteDisponivel() {
     const query = await this.prisma.servicoMotorista.findMany({
       where: {
-        ocupado: false,
+        motorista:{
+          disponivel: true
+        }
       },
       include: {
         motorista: {

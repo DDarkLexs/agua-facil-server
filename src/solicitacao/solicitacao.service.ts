@@ -5,11 +5,12 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { $Enums } from '@prisma/client';
+import { AuthService } from 'src/auth/auth.service';
+import { LocalizacaoService } from 'src/localizacao/localizacao.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ServicoService } from 'src/servico/servico.service';
 import { CreateSolicitacaoByMotoristaIdDto } from './dto/create-solicitacao.dto';
 import { UpdateSolicitacaoDto } from './dto/update-solicitacao.dto';
-import { LocalizacaoService } from 'src/localizacao/localizacao.service';
 
 @Injectable()
 export class SolicitacaoService {
@@ -17,6 +18,7 @@ export class SolicitacaoService {
     private readonly prisma: PrismaService,
     private readonly servicoService: ServicoService,
     private readonly localizacaoService: LocalizacaoService,
+    private readonly authService: AuthService,
   ) { }
   async create(
     id: number,
@@ -27,7 +29,15 @@ export class SolicitacaoService {
     if (!service) {
       throw new NotFoundException('Serviço inexistente');
     }
-    if (service.ocupado === true) {
+    const motorista = await this.prisma.motorista.findFirst({
+      where: {
+        id: service.motoristaId
+      }
+    })
+    if (!motorista) {
+      throw new NotFoundException('Motorista inexistente');
+    }
+    if (motorista.disponivel === false) {
       throw new ServiceUnavailableException(
         'Serviço indisponível para solicitação',
       );
@@ -43,7 +53,6 @@ export class SolicitacaoService {
         clienteId,
         motoristaId: service.motoristaId,
         ...createSolicitacaoDto, // Verifique se `createSolicitacaoDto` está definido corretamente
-        endereco: location.data.display_name
       },
     });
 
@@ -205,7 +214,7 @@ export class SolicitacaoService {
     }
     return query;
   }
-  async updateByCliente(clienteId:number, id: number, status: $Enums.ServicoStatus) {
+  async updateByCliente(clienteId: number, id: number, status: $Enums.ServicoStatus) {
     let date = undefined;
     const solicitacao = await this.prisma.servicoSolicitado.findFirst({
       where: {
@@ -213,8 +222,7 @@ export class SolicitacaoService {
         clienteId,
       },
     });
-    console.log(solicitacao);
-    
+
     if (!solicitacao) {
       throw new NotFoundException('Solicitação inexistente');
     }
@@ -233,9 +241,9 @@ export class SolicitacaoService {
         dataConclusao: date
       },
     });
-    
+
     return updatedServico;
-    
+
   }
   async updateByMotorista(
     id: number,
@@ -252,69 +260,11 @@ export class SolicitacaoService {
       throw new NotFoundException('Solicitação inexistente');
     }
     let solicitacaoAtualizada;
-    let date = undefined;
+    // let date = undefined;
 
-    if (updateSolicitacaoDto.status === $Enums.ServicoStatus.CONCLUIDO || updateSolicitacaoDto.status === $Enums.ServicoStatus.RECUSADO || updateSolicitacaoDto.status === $Enums.ServicoStatus.CANCELADO) {
-      date = new Date();
-    }
-
-
-    solicitacaoAtualizada = await this.prisma.servicoSolicitado.update({
-      where: {
-        id,
-        motoristaId,
-      },
-      data: {
-        ...updateSolicitacaoDto,
-        dataConclusao: date,
-      },
-    });
-
-    if (
-      solicitacaoAtualizada.status === $Enums.ServicoStatus.CONCLUIDO ||
-      solicitacaoAtualizada.status === $Enums.ServicoStatus.RECUSADO  
-    ) {
-      await this.prisma.servicoMotorista.update({
-        data: {
-          ocupado: false,
-        },
-        where: {
-          motoristaId,
-        },
-      });
-
-      solicitacaoAtualizada = await this.prisma.servicoSolicitado.update({
-        where: {
-          id,
-          motoristaId,
-        },
-        data: {
-          dataConclusao: new Date(),
-        },
-      });
-    }
-    return solicitacaoAtualizada;
-  }
-  async updateByMotoristaWithcoordenada(
-    id: number,
-    motoristaId: number,
-    updateSolicitacaoDto: UpdateSolicitacaoDto,
-  ) {
-    const solicitacao = await this.prisma.servicoSolicitado.findFirst({
-      where: {
-        id,
-        motoristaId,
-      },
-    });
-    if (!solicitacao) {
-      throw new NotFoundException('Solicitação inexistente');
-    }
-    let solicitacaoAtualizada;
-    let date = undefined;
-
-    if (updateSolicitacaoDto.status === $Enums.ServicoStatus.CONCLUIDO || updateSolicitacaoDto.status === $Enums.ServicoStatus.RECUSADO || updateSolicitacaoDto.status === $Enums.ServicoStatus.CANCELADO) {
-      date = new Date();
-    }
+    // if (updateSolicitacaoDto.status === $Enums.ServicoStatus.CONCLUIDO || updateSolicitacaoDto.status === $Enums.ServicoStatus.RECUSADO || updateSolicitacaoDto.status === $Enums.ServicoStatus.CANCELADO) {
+    //   date = new Date();
+    // }
 
 
     solicitacaoAtualizada = await this.prisma.servicoSolicitado.update({
@@ -324,22 +274,19 @@ export class SolicitacaoService {
       },
       data: {
         ...updateSolicitacaoDto,
-        dataConclusao: date,
+        // dataConclusao: date,
       },
     });
 
+
     if (
       solicitacaoAtualizada.status === $Enums.ServicoStatus.CONCLUIDO ||
-      solicitacaoAtualizada.status === $Enums.ServicoStatus.RECUSADO  
+      solicitacaoAtualizada.status === $Enums.ServicoStatus.RECUSADO ||
+      solicitacaoAtualizada.status === $Enums.ServicoStatus.CANCELADO
     ) {
-      await this.prisma.servicoMotorista.update({
-        data: {
-          ocupado: false,
-        },
-        where: {
-          motoristaId,
-        },
-      });
+      /* aatt */
+      await this.atulizarMotoristaDisponibilidade(motoristaId, id, false);
+
 
       solicitacaoAtualizada = await this.prisma.servicoSolicitado.update({
         where: {
@@ -354,6 +301,35 @@ export class SolicitacaoService {
     return solicitacaoAtualizada;
   }
 
+  private async atulizarMotoristaDisponibilidade(motoristaId: number, servicoid: number, disponivel: boolean) {
+
+    const service = await this.servicoService.findOne(servicoid);
+    if (!service) {
+      throw new NotFoundException("Serviço inexistente");
+    }
+    // const servicoMotorista = await this.prisma.servicoMotorista.update({
+    //   data: {
+    //     ocupado: disponivel,
+    //   },
+    //   where: {
+    //     motoristaId,
+    //     id: servicoid
+    //   },
+    // });
+    const motorista = await this.prisma.motorista.update({
+      data: {
+        disponivel,
+      },
+      where: {
+        id: motoristaId,
+      },
+    })
+    return {
+      motorista,
+      // servicoMotorista
+    }
+
+  }
   remove(id: number) {
     return `This action removes a #${id} solicitacao`;
   }

@@ -85,7 +85,7 @@ export class ServicoGateway
         );
 
         if (!servico) {
-          throw "Solicitação inexistente";
+          throw "não tem serviço disponível";
         }
         // console.log(servico);
 
@@ -107,20 +107,46 @@ export class ServicoGateway
     }
   }
   @SubscribeMessage('motoristaAceitaSolicitacao')
-  handleEvent(@WsUser() client: Socket, @WsUserQuery() query: any, @WsParams() data: any) {
+  async motoristaAceitaSolicitacao(@WsUser() client: Socket, @WsUserQuery() query: any, @WsParams() data: any) {
     try {
 
       const user: any = client.data;
       // this.logger.log(query.solicitacaoId)
       if (user.tipo === $Enums.UsuarioTipo.MOTORISTA) {
-        this.solicitacao.updateByMotorista(Number(query.solicitacaoId),
+        const solicitacao = await this.solicitacao.updateByMotorista(Number(query.solicitacaoId),
           user.motorista.id,
           {
             status: $Enums.ServicoStatus.ACEITO
           });
 
-        
-        client.broadcast.emit('motoristaAceitaSolicitacao', `${user.nome} aceitou`);
+        const location = await this.locationService.findLocationByCoordenadaAsync(data.coordenada);
+
+        client.broadcast.emit('motoristaAceitaSolicitacao', solicitacao);
+      } else {
+        throw "Utizador não autorizado";
+      }
+    } catch (error) {
+      this.logger.error(error);
+      client.broadcast.emit('error', error);
+      client.disconnect();
+    }
+  }
+  @SubscribeMessage('motoristaTerminaSolicitacao')
+  async motoristaTerminaSolicitacao(@WsUser() client: Socket, @WsUserQuery() query: any, @WsParams() data: any) {
+    try {
+
+      const user: any = client.data;
+      // this.logger.log(query.solicitacaoId)
+      if (user.tipo === $Enums.UsuarioTipo.MOTORISTA) {
+        const solicitacao = await this.solicitacao.updateByMotorista(Number(query.solicitacaoId),
+          user.motorista.id,
+          {
+            status: $Enums.ServicoStatus.CONCLUIDO
+          });
+
+        const location = await this.locationService.findLocationByCoordenadaAsync(data.coordenada);
+
+        client.broadcast.emit('motoristaTerminaSolicitacao', solicitacao);
       } else {
         throw "Utizador não autorizado";
       }
@@ -158,11 +184,11 @@ export class ServicoGateway
         );
 
         if (!servico) {
-          throw "Solicitação inexistente";
+          throw "Não há uma solicitação disponível";
         }
         // console.log(servico);
-        const location = await this.locationService.findLocationByCoordenadaAsync(servico.coordenada)
-        console.log(location.data.address);
+        // const location = await this.locationService.findLocationByCoordenadaAsync(servico.coordenada)
+
 
         const hash = md5(servico.id);
         client.join(hash);
@@ -191,7 +217,7 @@ export class ServicoGateway
       );
 
       if (!servico) {
-        throw "Solicitação inexistente";
+        throw "Solicitação inexistente 2";
       }
 
       if (user.tipo === $Enums.UsuarioTipo.CLIENTE) {
