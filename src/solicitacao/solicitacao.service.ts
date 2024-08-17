@@ -52,7 +52,7 @@ export class SolicitacaoService {
         titulo: service.titulo,
         clienteId,
         motoristaId: service.motoristaId,
-        ...createSolicitacaoDto, // Verifique se `createSolicitacaoDto` está definido corretamente
+        // ...createSolicitacaoDto, // Verifique se `createSolicitacaoDto` está definido corretamente
       },
     });
 
@@ -119,6 +119,7 @@ export class SolicitacaoService {
   }
 
   async findOneByMotoristaAvailable(id: number, motoristaId: number) {
+
     if (!id) {
       throw new ForbiddenException('Id não informado!');
     }
@@ -271,6 +272,9 @@ export class SolicitacaoService {
       where: {
         id,
         motoristaId,
+      },
+      include: {
+        motorista: true,
       },
       data: {
         ...updateSolicitacaoDto,

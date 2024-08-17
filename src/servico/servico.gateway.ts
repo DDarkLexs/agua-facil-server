@@ -100,7 +100,7 @@ export class ServicoGateway
         throw "Utizador inexistente";
       }
     } catch (error) {
-
+      this.logger.error(error);
       client.broadcast.emit('error', error);
       client.disconnect();
 
@@ -118,9 +118,9 @@ export class ServicoGateway
           {
             status: $Enums.ServicoStatus.ACEITO
           });
-
+  
         const location = await this.locationService.findLocationByCoordenadaAsync(data.coordenada);
-
+          this.logger.log("Motorista aceitou solicitação");
         client.broadcast.emit('motoristaAceitaSolicitacao', solicitacao);
       } else {
         throw "Utizador não autorizado";

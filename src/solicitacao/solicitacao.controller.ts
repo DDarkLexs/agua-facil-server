@@ -30,9 +30,10 @@ export class SolicitacaoController {
     @Body() createSolicitacaoDto: CreateSolicitacaoByMotoristaIdDto,
     @Req() req: any
   ): Promise<ServicoSolicitado> {
-    const clienteid = req['usuario']["cliente"].id;  
+    const clienteid = req['usuario']["cliente"].id; 
     return this.solicitacaoService.create(id, clienteid, createSolicitacaoDto);
   }
+  
   @Get()
   @UsePipes(ValidationPipe)
   @Autorizacao($Enums.UsuarioTipo.CLIENTE)
