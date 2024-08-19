@@ -261,7 +261,7 @@ export class SolicitacaoService {
       throw new NotFoundException('Solicitação inexistente');
     }
     let solicitacaoAtualizada;
-    // let date = undefined;
+    let date = undefined;
 
     // if (updateSolicitacaoDto.status === $Enums.ServicoStatus.CONCLUIDO || updateSolicitacaoDto.status === $Enums.ServicoStatus.RECUSADO || updateSolicitacaoDto.status === $Enums.ServicoStatus.CANCELADO) {
     //   date = new Date();

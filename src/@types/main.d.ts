@@ -1,4 +1,5 @@
 import { Cliente, Motorista, Usuario } from "@prisma/client";
+import { SolicitacaoService } from "src/solicitacao/solicitacao.service";
 declare global {
     interface IAuthUserDriver {
         usuario: Usuario;
@@ -10,6 +11,10 @@ declare global {
         cliente: Cliente;
         token: string;
     }
+    interface IMotoristaAceitaSolicitacaoResponse {
+        motorista: Motorista;
+        solicitacao: SolicitacaoService;
+    } 
 
     interface Address {
         county: string;
