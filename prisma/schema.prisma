@@ -90,19 +90,30 @@ model ServicoMotorista {
 // novo
 
 model ServicoSolicitado {
-  id            Int           @id @default(autoincrement())
-  titulo        String
-  descricao     String?
-  litroAgua     Float
-  preco         Float
-  status        ServicoStatus @default(PENDENTE)
-  dataConclusao DateTime?
-  clienteId     Int
-  motoristaId   Int
-  created       DateTime      @default(now())
-  updated       DateTime      @updatedAt
-  cliente       Cliente       @relation(fields: [clienteId], references: [id])
-  motorista     Motorista     @relation(fields: [motoristaId], references: [id])
+  id                          Int                           @id @default(autoincrement())
+  titulo                      String
+  descricao                   String?
+  litroAgua                   Float
+  preco                       Float
+  status                      ServicoStatus                 @default(PENDENTE)
+  dataConclusao               DateTime?
+  clienteId                   Int
+  motoristaId                 Int
+  created                     DateTime                      @default(now())
+  updated                     DateTime                      @updatedAt
+  cliente                     Cliente                       @relation(fields: [clienteId], references: [id])
+  motorista                   Motorista                     @relation(fields: [motoristaId], references: [id])
+  SSCoordenada SSCoordenada[]
+}
+
+model SSCoordenada {
+  id                  Int               @id @default(autoincrement())
+  cordenada           String?           @default("0,0")                         // Adiciona a coordenada
+  endereco            String?		        @default("Sem endereço dispónivel")            // Adiciona o endereço completo
+  created             DateTime          @default(now())
+  updated             DateTime          @updatedAt
+  solicitacao         ServicoSolicitado @relation(fields: [servicoSolicitadoId], references: [id])
+  servicoSolicitadoId Int
 }
 
 model Avaliacao {

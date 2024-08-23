@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UsePipes, ValidationPipe } from '@nestjs/common';
 import { $Enums, ServicoSolicitado } from '@prisma/client';
 import { Autorizacao } from 'src/authorization/authorization.decorator';
-import { CreateSolicitacaoByMotoristaIdDto } from './dto/create-solicitacao.dto';
+import { CreateSolicitacaoByClienteIdDto } from './dto/create-solicitacao.dto';
 import { UpdateSolicitacaoDto, UpdateStatusSolicitacaoDto } from './dto/update-solicitacao.dto';
 import { convertToNumberPipe } from './solicitacao.pipe';
 import { SolicitacaoService } from './solicitacao.service';
@@ -27,7 +27,7 @@ export class SolicitacaoController {
   @UsePipes(ValidationPipe)
   @Autorizacao($Enums.UsuarioTipo.CLIENTE)
   create(@Param('servicoId', convertToNumberPipe) id: number,
-    @Body() createSolicitacaoDto: CreateSolicitacaoByMotoristaIdDto,
+    @Body() createSolicitacaoDto: CreateSolicitacaoByClienteIdDto,
     @Req() req: any
   ): Promise<ServicoSolicitado> {
     const clienteid = req['usuario']["cliente"].id; 

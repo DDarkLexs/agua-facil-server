@@ -9,7 +9,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { LocalizacaoService } from 'src/localizacao/localizacao.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ServicoService } from 'src/servico/servico.service';
-import { CreateSolicitacaoByMotoristaIdDto } from './dto/create-solicitacao.dto';
+import { CreateSolicitacaoByClienteIdDto } from './dto/create-solicitacao.dto';
 import { UpdateSolicitacaoDto } from './dto/update-solicitacao.dto';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class SolicitacaoService {
   async create(
     id: number,
     clienteId: number,
-    createSolicitacaoDto: CreateSolicitacaoByMotoristaIdDto,
+    createSolicitacaoDto: CreateSolicitacaoByClienteIdDto,
   ) {
     const service = await this.servicoService.findOne(id);
     if (!service) {
@@ -43,7 +43,7 @@ export class SolicitacaoService {
       );
     }
 
-    const location = await this.localizacaoService.findLocationByCoordenadaAsync(createSolicitacaoDto.coordenada)
+    const location = await this.localizacaoService.findLocationByCoordenadaAsync(createSolicitacaoDto.cordenada);
 
     const newSolicitacao = await this.prisma.servicoSolicitado.create({
       data: {
@@ -57,7 +57,15 @@ export class SolicitacaoService {
     });
 
     if (newSolicitacao) {
-      this.prisma.servicoMotorista.update({
+      const SSCoordenada = await this.prisma.sSCoordenada.create({
+        data: {
+          cordenada: createSolicitacaoDto.cordenada,
+          servicoSolicitadoId: newSolicitacao.id,
+          endereco: location.data.display_name,
+        },
+      })
+
+      await this.prisma.servicoMotorista.update({
         data: {
           ocupado: true,
         },
@@ -66,7 +74,7 @@ export class SolicitacaoService {
         },
       });
     }
-    return newSolicitacao;
+    return this.prisma.servicoSolicitado.findFirst({ where: { id: newSolicitacao.id }, include: { motorista: true, SSCoordenada: true } });
   }
 
   /**

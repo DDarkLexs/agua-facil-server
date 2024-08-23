@@ -1,6 +1,6 @@
-import { ServicoSolicitado } from "@prisma/client";
+import { ServicoSolicitado, SSCoordenada } from "@prisma/client";
 
-import { IsNotEmpty, IsNumber, IsOptional, IsString,IsLatLong } from 'class-validator';
+import { IsLatLong, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateSolicitacaoDto implements Omit<ServicoSolicitado, "clienteId" | "created" | "id" | "updated" | "status"> {
     @IsNotEmpty({ message: 'A coordenada é obrigatória' })
@@ -23,8 +23,17 @@ export class CreateSolicitacaoDto implements Omit<ServicoSolicitado, "clienteId"
     @IsOptional()
     descricao: string | null
 }
-export class CreateSolicitacaoByMotoristaIdDto {
+
+
+
+export class CreateSolicitacaoByClienteIdDto implements Pick<SSCoordenada, "cordenada" | "endereco"> {
     @IsNotEmpty({ message: 'A coordenada é obrigatória' })
     @IsLatLong({ message: 'Coordenada inválida' })
-    coordenada: string;
+    cordenada: string;
+    @IsOptional()
+    @IsString({ message: 'Por favor, Informe o endereço' })
+    endereco: string;
 }
+
+
+
