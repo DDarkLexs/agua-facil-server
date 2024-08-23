@@ -104,6 +104,31 @@ export class ServicoGateway
       client.disconnect();
     }
   }
+  @SubscribeMessage('motoristaAtualizaLocalizacao')
+  async motoristaAtualizaLocalizacao(
+    @WsUser() client: Socket,
+    @WsParams() data: any,
+    @WsUserQuery() query: any,
+  ) {
+    try {
+      const user: any = client.data;
+      if (user.tipo === $Enums.UsuarioTipo.MOTORISTA) {
+        const location =
+          await this.locationService.findLocationByCoordenadaAsync(
+            data.cordenada,
+          );
+        this.logger.log('Motorista atualiza localização');
+        client.broadcast.emit('motoristaAtualizaLocalizacao', {
+          location,
+          motorista: user,
+        });
+      }
+    } catch (error) {
+      this.logger.error(error);
+      client.broadcast.emit('error', error);
+      client.disconnect();
+    }
+  }
   @SubscribeMessage('motoristaAceitaSolicitacao')
   async motoristaAceitaSolicitacao(
     @WsUser() client: Socket,
