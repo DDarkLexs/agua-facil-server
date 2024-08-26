@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -65,14 +66,14 @@ export class SolicitacaoService {
         },
       })
 
-      await this.prisma.servicoMotorista.update({
-        data: {
-          ocupado: true,
-        },
-        where: {
-          id: service.motoristaId,
-        },
-      });
+      // await this.prisma.servicoMotorista.update({
+      //   data: {
+      //     ocupado: true,
+      //   },
+      //   where: {
+      //     id: service.motoristaId,
+      //   },
+      // });
     }
     return this.prisma.servicoSolicitado.findFirst({ where: { id: newSolicitacao.id }, include: { motorista: true, SSCoordenada: true } });
   }
@@ -264,6 +265,7 @@ export class SolicitacaoService {
         id,
         motoristaId,
       },
+
     });
     if (!solicitacao) {
       throw new NotFoundException('Solicitação inexistente');
@@ -283,6 +285,7 @@ export class SolicitacaoService {
       },
       include: {
         motorista: true,
+        SSCoordenada: true,
       },
       data: {
         ...updateSolicitacaoDto,
@@ -305,11 +308,46 @@ export class SolicitacaoService {
           id,
           motoristaId,
         },
+        include: {
+          // motorista: true,
+          SSCoordenada: true,
+        },
         data: {
           dataConclusao: new Date(),
         },
       });
     }
+    return solicitacaoAtualizada;
+  }
+  async motoristaFinalizaSolicitacao(
+    id: number,
+    motoristaId: number,
+    updateSolicitacaoDto: UpdateSolicitacaoDto,
+  ) {
+
+    if (updateSolicitacaoDto.status === $Enums.ServicoStatus.ACEITO || updateSolicitacaoDto.status === $Enums.ServicoStatus.PENDENTE) {
+      throw new BadRequestException('Solicitação não concluída');
+    }
+    const solicitacao = await this.prisma.servicoSolicitado.findFirst({
+      where: {
+        id,
+        motoristaId,
+      },
+    });
+    if (!solicitacao) {
+      throw new NotFoundException('Solicitação inexistente');
+    }
+    const solicitacaoAtualizada = await this.prisma.servicoSolicitado.update({
+      where: {
+        id,
+        motoristaId,
+      },
+      data: {
+        dataConclusao: new Date(),
+        ...updateSolicitacaoDto,
+        
+      },
+    });
     return solicitacaoAtualizada;
   }
 

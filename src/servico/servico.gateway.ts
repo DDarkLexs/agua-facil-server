@@ -119,8 +119,8 @@ export class ServicoGateway
           );
         this.logger.log('Motorista atualiza localização');
         client.broadcast.emit('motoristaAtualizaLocalizacao', {
-          location,
-          motorista: user,
+          data: location.data,
+          // motorista: user,
         });
       }
     } catch (error) {
@@ -147,14 +147,17 @@ export class ServicoGateway
           },
         );
 
+        
         const location =
-          await this.locationService.findLocationByCoordenadaAsync(
-            data.coordenada,
-          );
+        await this.locationService.findLocationByCoordenadaAsync(
+          data.cordenada,
+        );
+        console.log(location.data)
         this.logger.log('Motorista aceitou solicitação');
         client.broadcast.emit('motoristaAceitaSolicitacao', {
           solicitacao,
           utilizador: user,
+          data: location.data,
         });
       } else {
         throw 'Utizador não autorizado';
@@ -175,7 +178,8 @@ export class ServicoGateway
       const user: any = client.data;
       // this.logger.log(query.solicitacaoId)
       if (user.tipo === $Enums.UsuarioTipo.MOTORISTA) {
-        const solicitacao = await this.solicitacao.updateByMotorista(
+        console.log(Number(query.solicitacaoId), user.motorista.id)
+        const solicitacao = await this.solicitacao.motoristaFinalizaSolicitacao(
           Number(query.solicitacaoId),
           user.motorista.id,
           {
@@ -183,11 +187,12 @@ export class ServicoGateway
           },
         );
 
-        const location =
-          await this.locationService.findLocationByCoordenadaAsync(
-            data.coordenada,
-          );
+        // const location =
+        //   await this.locationService.findLocationByCoordenadaAsync(
+        //     data.coordenada,
+        //   );
 
+        this.logger.log('Motorista terminou solicitação');
         client.broadcast.emit('motoristaTerminaSolicitacao', solicitacao);
       } else {
         throw 'Utizador não autorizado';
