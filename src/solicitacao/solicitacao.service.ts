@@ -53,6 +53,7 @@ export class SolicitacaoService {
         titulo: service.titulo,
         clienteId,
         motoristaId: service.motoristaId,
+        
         // ...createSolicitacaoDto, // Verifique se `createSolicitacaoDto` está definido corretamente
       },
     });
