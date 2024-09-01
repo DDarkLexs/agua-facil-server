@@ -90,26 +90,37 @@ model ServicoMotorista {
 // novo
 
 model ServicoSolicitado {
-  id                          Int                           @id @default(autoincrement())
-  titulo                      String
-  descricao                   String?
-  litroAgua                   Float
-  preco                       Float
-  status                      ServicoStatus                 @default(PENDENTE)
-  dataConclusao               DateTime?
-  clienteId                   Int
-  motoristaId                 Int
-  created                     DateTime                      @default(now())
-  updated                     DateTime                      @updatedAt
-  cliente                     Cliente                       @relation(fields: [clienteId], references: [id])
-  motorista                   Motorista                     @relation(fields: [motoristaId], references: [id])
-  SSCoordenada SSCoordenada[]
+  id                Int             @id @default(autoincrement())
+  titulo            String
+  descricao         String?
+  litroAgua         Float
+  preco             Float
+  status            ServicoStatus   @default(PENDENTE)
+  dataConclusao     DateTime?
+  clienteId         Int
+  motoristaId       Int
+  created           DateTime        @default(now())
+  updated           DateTime        @updatedAt
+  cliente           Cliente         @relation(fields: [clienteId], references: [id])
+  motorista         Motorista       @relation(fields: [motoristaId], references: [id])
+  SSCoordenada      SSCoordenada[]
+  SSNotaPagamento   SSNotaPagamento @relation(fields: [sSNotaPagamentoId], references: [id])
+  sSNotaPagamentoId Int
+}
+
+model SSNotaPagamento {
+  id                Int             @id @default(autoincrement())
+  valor             Float           @default(0)
+  formaDePagamento  String          @default("Númerario")
+  created           DateTime        @default(now())
+  updated           DateTime        @updatedAt
+  ServicoSolicitado ServicoSolicitado[]
 }
 
 model SSCoordenada {
   id                  Int               @id @default(autoincrement())
-  cordenada           String?           @default("0,0")                         // Adiciona a coordenada
-  endereco            String?		        @default("Sem endereço dispónivel")            // Adiciona o endereço completo
+  cordenada           String?           @default("0,0") // Adiciona a coordenada
+  endereco            String?           @default("Sem endereço dispónivel") // Adiciona o endereço completo
   created             DateTime          @default(now())
   updated             DateTime          @updatedAt
   solicitacao         ServicoSolicitado @relation(fields: [servicoSolicitadoId], references: [id])
