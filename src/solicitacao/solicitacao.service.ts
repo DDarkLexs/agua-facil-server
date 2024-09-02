@@ -10,7 +10,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { LocalizacaoService } from 'src/localizacao/localizacao.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ServicoService } from 'src/servico/servico.service';
-import { CreateSolicitacaoByClienteIdDto } from './dto/create-solicitacao.dto';
+import { CreatePaymentNoteDto, CreateSolicitacaoByClienteIdDto } from './dto/create-solicitacao.dto';
 import { UpdateSolicitacaoDto } from './dto/update-solicitacao.dto';
 
 @Injectable()
@@ -53,7 +53,7 @@ export class SolicitacaoService {
         titulo: service.titulo,
         clienteId,
         motoristaId: service.motoristaId,
-        
+
         // ...createSolicitacaoDto, // Verifique se `createSolicitacaoDto` está definido corretamente
       },
     });
@@ -212,7 +212,7 @@ export class SolicitacaoService {
   }
 
 
-  async findOne(id: number, clienteId: number) {
+  async findOneByClinte(id: number, clienteId: number) {
     const query = await this.prisma.servicoSolicitado.findFirst({
       where: {
         id,
@@ -221,6 +221,22 @@ export class SolicitacaoService {
     });
 
     if (!query) {
+      throw new NotFoundException('Solicitação inexistente');
+    }
+    return query;
+  }
+  async findOneActive(id: number) {
+    const query = await this.prisma.servicoSolicitado.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!query) {
+      throw new NotFoundException('Solicitação inexistente');
+    }
+
+    if (query.status !== $Enums.ServicoStatus.ACEITO && query.status !== $Enums.ServicoStatus.PENDENTE) {
       throw new NotFoundException('Solicitação inexistente');
     }
     return query;
@@ -346,7 +362,7 @@ export class SolicitacaoService {
       data: {
         dataConclusao: new Date(),
         ...updateSolicitacaoDto,
-        
+
       },
     });
     return solicitacaoAtualizada;
@@ -380,6 +396,20 @@ export class SolicitacaoService {
       // servicoMotorista
     }
 
+  }
+  async createPaymentNote(data: CreatePaymentNoteDto, solicitacaoId: number) {
+    const solicitacao = await this.findOneActive(solicitacaoId);
+    let payment;
+    if (data.valor === null) {
+      payment = await this.prisma.sSNotaPagamento.create({
+        data: { ...data, valor: solicitacao.preco, servicoSolicitadoId: solicitacaoId },
+      })
+    } else {
+      payment = await this.prisma.sSNotaPagamento.create({
+        data: { ...data, servicoSolicitadoId: solicitacaoId },
+      })
+    }
+    return payment;
   }
   remove(id: number) {
     return `This action removes a #${id} solicitacao`;

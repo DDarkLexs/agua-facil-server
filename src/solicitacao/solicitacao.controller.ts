@@ -46,12 +46,12 @@ export class SolicitacaoController {
   @Autorizacao($Enums.UsuarioTipo.CLIENTE)
   findOne(@Param('id', convertToNumberPipe) id: number, @Req() req: any) {
     const clienteid = req['usuario']["cliente"].id;
-    return this.solicitacaoService.findOne(id, clienteid);
+    return this.solicitacaoService.findOneByClinte(id, clienteid);
   }
   @Get('cliente/:id')
   findOneByprops(@Param('id', convertToNumberPipe) id: number, @Req() req: any) {
     const clienteid = req['usuario']["cliente"].id;
-    return this.solicitacaoService.findOne(id, clienteid);
+    return this.solicitacaoService.findOneByClinte(id, clienteid);
   }
   @Get('historico')
   @Autorizacao($Enums.UsuarioTipo.CLIENTE)

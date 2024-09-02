@@ -20,3 +20,5 @@ export class CreateServicoDto implements Omit<ServicoMotorista, 'id' | 'createdA
     @IsNumber({}, { message: 'O litro deve ser um número' })
     litroAgua: number;
 }
+
+

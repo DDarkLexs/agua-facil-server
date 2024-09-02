@@ -20,14 +20,13 @@ import { ServicoService } from './servico.service';
 @WebSocketGateway({ cors: true })
 @UseGuards(WsUserGuard)
 export class ServicoGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly authService: AuthService,
     private readonly solicitacao: SolicitacaoService,
     private readonly servico: ServicoService,
     private readonly locationService: LocalizacaoService,
-  ) {}
+  ) { }
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('ServicoGateway');
 
@@ -90,11 +89,10 @@ export class ServicoGateway
 
         const hash = md5(servico.id);
 
-        console.log(user.nome, ' - ', user.tipo);
         client.join(hash);
         client.broadcast
           // .to(hash)
-          .emit('JoinRoomPrivateRoom', `${user.nome} juntou-se`);
+          .emit('JoinRoomPrivateRoom', `${user.nome}(${user.tipo}) juntou-se`);
       } else {
         throw 'Utizador inexistente';
       }
@@ -147,11 +145,11 @@ export class ServicoGateway
           },
         );
 
-        
+
         const location =
-        await this.locationService.findLocationByCoordenadaAsync(
-          data.cordenada,
-        );
+          await this.locationService.findLocationByCoordenadaAsync(
+            data.cordenada,
+          );
         console.log(location.data)
         this.logger.log('Motorista aceitou solicitação');
         client.broadcast.emit('motoristaAceitaSolicitacao', {
@@ -186,14 +184,14 @@ export class ServicoGateway
             status: $Enums.ServicoStatus.CONCLUIDO,
           },
         );
-
+        const paymentNote = await this.solicitacao.createPaymentNote({ formaDePagamento: "Numerário", valor: null }, solicitacao.id);
         // const location =
         //   await this.locationService.findLocationByCoordenadaAsync(
         //     data.coordenada,
         //   );
 
         this.logger.log('Motorista terminou solicitação');
-        client.broadcast.emit('motoristaTerminaSolicitacao', solicitacao);
+        client.broadcast.emit('motoristaTerminaSolicitacao', paymentNote);
       } else {
         throw 'Utizador não autorizado';
       }
