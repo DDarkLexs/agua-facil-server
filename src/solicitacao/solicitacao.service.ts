@@ -5,7 +5,7 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { $Enums } from '@prisma/client';
+import { $Enums, SSNotaPagamento } from '@prisma/client';
 import { AuthService } from 'src/auth/auth.service';
 import { LocalizacaoService } from 'src/localizacao/localizacao.service';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -397,19 +397,11 @@ export class SolicitacaoService {
     }
 
   }
-  async createPaymentNote(data: CreatePaymentNoteDto, solicitacaoId: number) {
+  async createPaymentNote(data: CreatePaymentNoteDto, solicitacaoId: number):Promise<SSNotaPagamento> {
     const solicitacao = await this.findOneActive(solicitacaoId);
-    let payment;
-    if (data.valor === null) {
-      payment = await this.prisma.sSNotaPagamento.create({
-        data: { ...data, valor: solicitacao.preco, servicoSolicitadoId: solicitacaoId },
-      })
-    } else {
-      payment = await this.prisma.sSNotaPagamento.create({
-        data: { ...data, servicoSolicitadoId: solicitacaoId },
-      })
-    }
-    return payment;
+    return  await this.prisma.sSNotaPagamento.create({
+      data: { ...data, valor:data.valor || solicitacao.preco, servicoSolicitadoId: solicitacaoId },
+    });
   }
   remove(id: number) {
     return `This action removes a #${id} solicitacao`;

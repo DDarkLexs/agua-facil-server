@@ -127,6 +127,24 @@ export class ServicoGateway
       client.disconnect();
     }
   }
+  @SubscribeMessage('motoristaChegou')
+  async motoristaChegou(
+    @WsUser() client: Socket,
+    @WsParams() data: any,
+    @WsUserQuery() query: any,
+  ) {
+    try {
+      const user: any = client.data;
+      if (user.tipo === $Enums.UsuarioTipo.MOTORISTA) {
+        this.logger.log('Motorista chegou ao local');
+        client.broadcast.emit('motoristaChegou');
+      }
+    } catch (error) {
+      this.logger.error(error);
+      client.broadcast.emit('error', error);
+      client.disconnect();
+    }
+  }
   @SubscribeMessage('motoristaAceitaSolicitacao')
   async motoristaAceitaSolicitacao(
     @WsUser() client: Socket,
@@ -176,6 +194,7 @@ export class ServicoGateway
       const user: any = client.data;
       // this.logger.log(query.solicitacaoId)
       if (user.tipo === $Enums.UsuarioTipo.MOTORISTA) {
+        const paymentNote = await this.solicitacao.createPaymentNote({ formaDePagamento: "Numerário", valor: null }, Number(query.solicitacaoId))
         console.log(Number(query.solicitacaoId), user.motorista.id)
         const solicitacao = await this.solicitacao.motoristaFinalizaSolicitacao(
           Number(query.solicitacaoId),
@@ -184,18 +203,18 @@ export class ServicoGateway
             status: $Enums.ServicoStatus.CONCLUIDO,
           },
         );
-        const paymentNote = await this.solicitacao.createPaymentNote({ formaDePagamento: "Numerário", valor: null }, solicitacao.id);
         // const location =
         //   await this.locationService.findLocationByCoordenadaAsync(
         //     data.coordenada,
         //   );
 
-        this.logger.log('Motorista terminou solicitação');
+        
         client.broadcast.emit('motoristaTerminaSolicitacao', paymentNote);
       } else {
         throw 'Utizador não autorizado';
       }
     } catch (error) {
+      console.log("erro ao tentar terminar a solicitação")
       this.logger.error(error);
       client.broadcast.emit('error', error);
       client.disconnect();
@@ -229,6 +248,7 @@ export class ServicoGateway
       client.disconnect();
     }
   }
+  
 
   /* 
             
